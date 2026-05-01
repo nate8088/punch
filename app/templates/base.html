@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Punch{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+
+<nav class="nav">
+  <a href="{{ url_for('dashboard.index') }}" class="nav-brand">Punch</a>
+  {% if current_user.is_authenticated %}
+  <div class="nav-links">
+    <a href="{{ url_for('time.punch') }}" class="nav-link {% if request.endpoint == 'time.punch' %}active{% endif %}">Clock</a>
+    <a href="{{ url_for('clients.index') }}" class="nav-link {% if 'clients' in request.endpoint %}active{% endif %}">Clients</a>
+    <a href="{{ url_for('time.index') }}" class="nav-link {% if request.endpoint == 'time.index' %}active{% endif %}">Time</a>
+    <a href="{{ url_for('invoices.index') }}" class="nav-link {% if 'invoices' in request.endpoint %}active{% endif %}">Invoices</a>
+    <a href="{{ url_for('settings.index') }}" class="nav-link {% if request.endpoint == 'settings.index' %}active{% endif %}">Settings</a>
+    <a href="{{ url_for('auth.logout') }}" class="nav-link">Out</a>
+  </div>
+  {% endif %}
+</nav>
+
+<main class="main">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<script src="{{ url_for('static', filename='punch.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Time — Punch{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="page-title">Time Entries</div>
+  <div class="btn-group">
+    <a href="{{ url_for('time.new') }}" class="btn btn-primary btn-sm">+ Entry</a>
+  </div>
+</div>
+
+{% if entries.items %}
+<div class="card" style="padding:0;">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Client</th>
+          <th>Duration</th>
+          <th>Notes</th>
+          <th>Invoice</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in entries.items %}
+        <tr>
+          <td class="td-muted text-sm mono">{{ entry.started_at.strftime('%Y-%m-%d') }}</td>
+          <td>{{ entry.client.name }}</td>
+          <td class="mono">
+            {% if entry.is_running %}
+              <span class="badge badge-running">running</span>
+            {% else %}
+              {{ entry.duration_display }}
+            {% endif %}
+          </td>
+          <td class="text-sm td-muted">{{ (entry.description or '')[:60] }}{% if entry.description and entry.description|length > 60 %}…{% endif %}</td>
+          <td class="text-sm">
+            {% if entry.invoice_id %}
+              <a href="{{ url_for('invoices.detail', invoice_id=entry.invoice_id) }}"
+                 style="color:var(--accent);font-family:var(--font);font-size:0.8rem;">
+                {{ entry.invoice.invoice_number }}
+              </a>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td><a href="{{ url_for('time.edit', entry_id=entry.id) }}" class="btn btn-ghost btn-sm">Edit</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="pagination">
+  {% if entries.has_prev %}
+    <a href="{{ url_for('time.index', page=entries.prev_num) }}" class="btn btn-secondary btn-sm">← Prev</a>
+  {% endif %}
+  <span class="text-muted text-sm" style="padding:0.4rem 0.5rem;">Page {{ entries.page }} of {{ entries.pages }}</span>
+  {% if entries.has_next %}
+    <a href="{{ url_for('time.index', page=entries.next_num) }}" class="btn btn-secondary btn-sm">Next →</a>
+  {% endif %}
+</div>
+
+{% else %}
+<div class="empty">
+  <div class="empty-icon">📋</div>
+  <p>No time entries yet.<br><a href="{{ url_for('time.punch') }}" style="color:var(--accent);">Start the clock</a> or <a href="{{ url_for('time.new') }}" style="color:var(--accent);">add one manually.</a></p>
+</div>
+{% endif %}
+
+{% endblock %}

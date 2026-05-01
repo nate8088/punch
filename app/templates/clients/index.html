@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Clients — Punch{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="page-title">Clients</div>
+  <a href="{{ url_for('clients.new') }}" class="btn btn-primary btn-sm">+ Client</a>
+</div>
+
+{% if clients %}
+<div class="card" style="padding:0;">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Billing</th>
+          <th>Rate</th>
+          <th>Contact</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for client in clients %}
+        <tr>
+          <td><a href="{{ url_for('clients.detail', client_id=client.id) }}" style="color:var(--text);text-decoration:none;font-weight:500;">{{ client.name }}</a></td>
+          <td><span class="badge badge-{{ client.billing_mode }}">{{ client.billing_mode }}</span></td>
+          <td class="mono text-sm">
+            {% if client.billing_mode == 'retainer' %}
+              ${{ "%.0f"|format(client.retainer_amount or 0) }}/mo
+              {% if client.retainer_hours %}+ {{ client.retainer_hours }}h{% endif %}
+            {% else %}
+              ${{ "%.0f"|format(client.hourly_rate or 0) }}/hr
+            {% endif %}
+          </td>
+          <td class="td-muted text-sm">{{ client.contact_name or '—' }}</td>
+          <td>{% if not client.is_active %}<span class="badge badge-draft">inactive</span>{% endif %}</td>
+          <td><a href="{{ url_for('clients.edit', client_id=client.id) }}" class="btn btn-ghost btn-sm">Edit</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="empty">
+  <div class="empty-icon">👤</div>
+  <p>No clients yet.<br><a href="{{ url_for('clients.new') }}" style="color:var(--accent);">Add your first client.</a></p>
+</div>
+{% endif %}
+
+{% endblock %}

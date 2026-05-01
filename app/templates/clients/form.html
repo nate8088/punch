@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}{% if client %}Edit{% else %}New{% endif %} Client — Punch{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="page-title">{% if client %}Edit {{ client.name }}{% else %}New Client{% endif %}</div>
+  <a href="{{ url_for('clients.index') }}" class="btn btn-ghost btn-sm">← Back</a>
+</div>
+
+<div class="card">
+  <form method="POST">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Client name *</label>
+        <input type="text" name="name" value="{{ client.name if client else '' }}" required autofocus>
+      </div>
+      <div class="form-group">
+        <label>Contact name</label>
+        <input type="text" name="contact_name" value="{{ client.contact_name if client else '' }}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Contact email</label>
+      <input type="email" name="contact_email" value="{{ client.contact_email if client else '' }}">
+    </div>
+
+    <hr class="divider">
+
+    <div class="form-group">
+      <label>Billing mode</label>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="billing_mode" value="retainer"
+            {% if not client or client.billing_mode == 'retainer' %}checked{% endif %}>
+          Retainer (fixed monthly + overage)
+        </label>
+        <label>
+          <input type="radio" name="billing_mode" value="hourly"
+            {% if client and client.billing_mode == 'hourly' %}checked{% endif %}>
+          Hourly
+        </label>
+      </div>
+    </div>
+
+    <div class="billing-mode-fields">
+
+      <div class="billing-mode-section" data-mode="retainer">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Monthly retainer amount ($)</label>
+            <input type="number" name="retainer_amount" min="0" step="0.01"
+              value="{{ client.retainer_amount if client else '' }}" placeholder="e.g. 500">
+          </div>
+          <div class="form-group">
+            <label>Included hours (soft cap)</label>
+            <input type="number" name="retainer_hours" min="0" step="0.5"
+              value="{{ client.retainer_hours if client else '' }}" placeholder="e.g. 12">
+            <div class="form-hint">Hours above this trigger overage billing (at your discretion).</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Overage hourly rate ($)</label>
+          <input type="number" name="overage_rate" min="0" step="0.01"
+            value="{{ client.overage_rate if client else '' }}" placeholder="e.g. 125">
+        </div>
+      </div>
+
+      <div class="billing-mode-section" data-mode="hourly">
+        <div class="form-group">
+          <label>Hourly rate ($)</label>
+          <input type="number" name="hourly_rate" min="0" step="0.01"
+            value="{{ client.hourly_rate if client else '' }}" placeholder="e.g. 125">
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="divider">
+
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea name="notes" rows="3" placeholder="Contract details, billing notes…">{{ client.notes if client else '' }}</textarea>
+    </div>
+
+    {% if client %}
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:0.5rem;text-transform:none;letter-spacing:0;">
+        <input type="checkbox" name="is_active" {% if client.is_active %}checked{% endif %}>
+        Active client
+      </label>
+    </div>
+    {% endif %}
+
+    <div class="btn-group">
+      <button type="submit" class="btn btn-primary">{% if client %}Save changes{% else %}Create client{% endif %}</button>
+      <a href="{{ url_for('clients.index') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}

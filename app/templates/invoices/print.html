@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice {{ invoice.invoice_number }}</title>
+  <style>
+    :root {
+      --accent: #c8860a;
+      --muted: #666;
+      --border: #ddd;
+      --text: #111;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: #fff;
+      padding: 2.5rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Print header nav */
+    .screen-only {
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.4rem 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: none;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    @media print {
+      .screen-only { display: none; }
+      body { padding: 0; }
+    }
+
+    /* Invoice layout */
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .from-block strong {
+      display: block;
+      font-size: 1.1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .from-block span {
+      display: block;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.875rem;
+    }
+
+    .meta-block { text-align: right; }
+
+    .invoice-number-label {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'Courier New', monospace;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .meta-dates {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    .bill-to {
+      margin-bottom: 2rem;
+    }
+
+    .bill-to-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .bill-to strong { font-size: 1rem; }
+    .bill-to span { display: block; color: var(--muted); font-size: 0.875rem; margin-top: 0.15rem; }
+
+    /* Line items table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+
+    th {
+      text-align: left;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+      vertical-align: top;
+    }
+
+    .text-right { text-align: right; }
+
+    .total-row td {
+      border-top: 2px solid var(--border);
+      border-bottom: none;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .total-row .amount { color: var(--accent); font-size: 1.2rem; }
+
+    .status-paid {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-left: 0.5rem;
+    }
+
+    .notes {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .period-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+{% if not pdf_mode %}
+<div class="screen-only no-print">
+  <a href="{{ url_for('invoices.download_pdf', invoice_id=invoice.id) }}" class="btn btn-primary">⬇ Download PDF</a>
+  <button class="btn" onclick="window.print()">🖨 Print</button>
+  <a href="{{ url_for('invoices.detail', invoice_id=invoice.id) }}" class="btn">← Back</a>
+</div>
+{% endif %}
+
+<!-- Header -->
+<div class="invoice-header">
+  <div class="from-block">
+    <strong>{{ business.name }}</strong>
+    {% if business.address %}<span>{{ business.address }}</span>{% endif %}
+    {% if business.city_state_zip %}<span>{{ business.city_state_zip }}</span>{% endif %}
+    {% if business.email %}<span>{{ business.email }}</span>{% endif %}
+    {% if business.phone %}<span>{{ business.phone }}</span>{% endif %}
+  </div>
+
+  <div class="meta-block">
+    <div class="invoice-number-label">
+      {{ invoice.invoice_number }}
+      {% if invoice.status == 'paid' %}<span class="status-paid">Paid</span>{% endif %}
+    </div>
+    <div class="meta-dates">
+      {% if invoice.issued_date %}<div>Issued: {{ invoice.issued_date.strftime('%B %d, %Y') }}</div>{% endif %}
+      {% if invoice.due_date and invoice.status != 'paid' %}<div>Due: {{ invoice.due_date.strftime('%B %d, %Y') }}</div>{% endif %}
+      {% if invoice.paid_date and invoice.status == 'paid' %}<div>Paid: {{ invoice.paid_date.strftime('%B %d, %Y') }}</div>{% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Bill to -->
+<div class="bill-to">
+  <div class="bill-to-label">Bill to</div>
+  <strong>{{ invoice.client.name }}</strong>
+  {% if invoice.client.contact_name %}<span>{{ invoice.client.contact_name }}</span>{% endif %}
+  {% if invoice.client.contact_email %}<span>{{ invoice.client.contact_email }}</span>{% endif %}
+</div>
+
+{% if invoice.period_start %}
+<div class="period-note">
+  Services rendered: {{ invoice.period_start.strftime('%B %d') }} – {{ invoice.period_end.strftime('%B %d, %Y') }}
+</div>
+{% endif %}
+
+<!-- Line items -->
+<table>
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th class="text-right">Qty</th>
+      <th class="text-right">Rate</th>
+      <th class="text-right">Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in invoice.line_items %}
+    <tr>
+      <td>{{ item.description }}</td>
+      <td class="text-right">{{ item.quantity }}</td>
+      <td class="text-right">${{ "%.2f"|format(item.unit_price) }}</td>
+      <td class="text-right">${{ "%.2f"|format(item.amount) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr class="total-row">
+      <td colspan="3" class="text-right">Total due</td>
+      <td class="text-right amount">${{ "%.2f"|format(invoice.total) }}</td>
+    </tr>
+  </tfoot>
+</table>
+
+{% if invoice.notes %}
+<div class="notes">{{ invoice.notes }}</div>
+{% endif %}
+
+</body>
+</html>

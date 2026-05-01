@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Clock — Punch{% endblock %}
+{% block content %}
+
+<div class="punch-screen">
+
+  <div class="punch-timer card">
+    {% if running %}
+      <div class="punch-client-label">Working for</div>
+      <div class="punch-running-client" id="punch-running-client">{{ running.client.name }}</div>
+      <div class="punch-clock" id="punch-clock">00:00:00</div>
+      <form method="POST" action="{{ url_for('time.punch_out') }}">
+        <button type="submit" class="punch-btn punch-btn-out">Punch Out</button>
+      </form>
+    {% else %}
+      <div class="punch-client-label">Select client</div>
+      <form method="POST" action="{{ url_for('time.punch_in') }}">
+        <select name="client_id" class="client-select" required>
+          <option value="">— choose —</option>
+          {% for client in clients %}
+          <option value="{{ client.id }}">{{ client.name }}</option>
+          {% endfor %}
+        </select>
+        <div class="punch-clock idle" id="punch-clock">00:00:00</div>
+        <button type="submit" class="punch-btn punch-btn-in">Punch In</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="btn-group mt-2" style="justify-content:center;">
+    <a href="{{ url_for('time.new') }}" class="btn btn-secondary btn-sm">+ Manual entry</a>
+    <a href="{{ url_for('dashboard.index') }}" class="btn btn-ghost btn-sm">Dashboard</a>
+  </div>
+
+</div>
+
+{% if running %}
+<script>
+  // Pass server-known start time to JS for accurate display
+  document.addEventListener("DOMContentLoaded", () => {
+    startLiveTimer("{{ running.started_at.isoformat() }}Z");
+  });
+</script>
+{% endif %}
+
+{% endblock %}
