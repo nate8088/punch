@@ -13,7 +13,7 @@ def parse_local_datetime(dt_string):
     if not dt_string:
         return None
     # datetime-local format: "YYYY-MM-DDTHH:MM"
-    naive = datetime.strptime(dt_string, "%Y-%m-%dT%H:%M")
+    return datetime.strptime(dt_string, "%Y-%m-%dT%H:%M")
     # Treat as Eastern — for a single-user app, storing as-is is fine.
     # We return naive UTC-equivalent; for full TZ support, use pytz or zoneinfo.
     return naive.replace(tzinfo=timezone.utc)
@@ -56,7 +56,7 @@ def punch_in():
 
     entry = TimeEntry(
         client_id=client_id,
-        started_at=datetime.now(timezone.utc),
+        started_at=datetime.utcnow(),
         is_billable=True,
     )
     db.session.add(entry)
@@ -189,8 +189,7 @@ def status():
     """JSON endpoint for the punch screen timer display."""
     running = TimeEntry.query.filter_by(ended_at=None).first()
     if running:
-        started = running.started_at.replace(tzinfo=timezone.utc) if running.started_at.tzinfo is None else running.started_at
-        elapsed = (datetime.now(timezone.utc) - started).total_seconds()
+        elapsed = (datetime.utcnow() - running.started_at).total_seconds()
         return jsonify({
             "running": True,
             "entry_id": running.id,
