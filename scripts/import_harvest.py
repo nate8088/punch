@@ -3,7 +3,7 @@
 import_harvest.py — Import time entries from Harvest CSV export into Punch.
 
 Usage:
-  docker-compose exec app python scripts/import_harvest.py /path/to/harvest_time.csv
+  docker compose exec app python scripts/import_harvest.py /path/to/harvest_time.csv
 
 Harvest CSV export:
   In Harvest: Reports → Time → Detailed → Export (CSV)
@@ -16,7 +16,7 @@ Run this from inside the Docker container, or with PYTHONPATH set to the app roo
 import sys
 import csv
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 # Add app root to path
@@ -163,10 +163,7 @@ def import_harvest(filepath):
                     skipped += 1
                     continue
 
-            ended_at = started_at.replace(
-                hour=started_at.hour + (minutes // 60),
-                minute=minutes % 60,
-            )
+            ended_at = started_at + timedelta(minutes=minutes)
 
             entry = TimeEntry(
                 client_id=client.id,
