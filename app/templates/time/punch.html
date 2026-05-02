@@ -36,7 +36,7 @@
 
 {% if running %}
 <script>
-  // Pass server-known start time to JS for accurate display
+  window.PUNCH_RUNNING = true;
   document.addEventListener("DOMContentLoaded", () => {
     startLiveTimer("{{ running.started_at.isoformat() }}Z");
   });

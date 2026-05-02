@@ -34,6 +34,7 @@ function startLiveTimer(startedAtISO) {
 // ── Punch screen initialization ─────────────────────────────────────────────
 
 async function initPunchScreen() {
+  if (window.PUNCH_RUNNING) return;
   const clock = document.getElementById("punch-clock");
   if (!clock) return;
 
