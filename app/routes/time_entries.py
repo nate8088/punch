@@ -9,14 +9,10 @@ time_bp = Blueprint("time", __name__, url_prefix="/time")
 
 
 def parse_local_datetime(dt_string):
-    """Parse a datetime-local input value to a UTC-aware datetime."""
+    """Parse a datetime-local input value as naive UTC."""
     if not dt_string:
         return None
-    # datetime-local format: "YYYY-MM-DDTHH:MM"
     return datetime.strptime(dt_string, "%Y-%m-%dT%H:%M")
-    # Treat as Eastern — for a single-user app, storing as-is is fine.
-    # We return naive UTC-equivalent; for full TZ support, use pytz or zoneinfo.
-    return naive.replace(tzinfo=timezone.utc)
 
 
 @time_bp.route("/")
@@ -99,7 +95,9 @@ def edit(entry_id):
 
         # Recalculate duration if times changed
         if entry.started_at and entry.ended_at:
-            raw = (entry.ended_at - entry.started_at).total_seconds() / 60
+            started = entry.started_at.replace(tzinfo=None) if entry.started_at.tzinfo else entry.started_at
+            ended = entry.ended_at.replace(tzinfo=None) if entry.ended_at.tzinfo else entry.ended_at
+            raw = (ended - started).total_seconds() / 60
             entry.duration_minutes = TimeEntry.round_to_15(max(0, raw))
 
         # Or allow manual duration override (only if start/end not both set)
@@ -168,7 +166,7 @@ def new():
             flash("Time entry added.", "success")
             return redirect(url_for("clients.detail", client_id=client_id))
 
-    now_local = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M")
+    now_local = datetime.utcnow().strftime("%Y-%m-%dT%H:%M")
     return render_template("time/new.html", clients=clients, preselect_client=preselect_client, now_local=now_local)
 
 
@@ -189,12 +187,13 @@ def status():
     """JSON endpoint for the punch screen timer display."""
     running = TimeEntry.query.filter_by(ended_at=None).first()
     if running:
-        elapsed = (datetime.utcnow() - running.started_at).total_seconds()
+        started = running.started_at.replace(tzinfo=None) if running.started_at.tzinfo else running.started_at
+        elapsed = (datetime.utcnow() - started).total_seconds()
         return jsonify({
             "running": True,
             "entry_id": running.id,
             "client_name": running.client.name,
             "elapsed_seconds": int(elapsed),
-            "started_at": running.started_at.isoformat(),
+            "started_at": running.started_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         })
     return jsonify({"running": False})
