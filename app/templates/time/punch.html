@@ -40,9 +40,7 @@
 {% if running %}
 <script>
   window.PUNCH_RUNNING = true;
-  document.addEventListener("DOMContentLoaded", () => {
-    startLiveTimer("{{ running.started_at.strftime('%Y-%m-%dT%H:%M:%SZ') }}");
-  });
+  startLiveTimer("{{ running.started_at.strftime('%Y-%m-%dT%H:%M:%SZ') }}");
 </script>
 {% endif %}
 {% endblock %}
