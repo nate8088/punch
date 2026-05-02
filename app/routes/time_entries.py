@@ -168,7 +168,8 @@ def new():
             flash("Time entry added.", "success")
             return redirect(url_for("clients.detail", client_id=client_id))
 
-    return render_template("time/new.html", clients=clients, preselect_client=preselect_client)
+    now_local = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M")
+    return render_template("time/new.html", clients=clients, preselect_client=preselect_client, now_local=now_local)
 
 
 @time_bp.route("/<int:entry_id>/delete", methods=["POST"])
