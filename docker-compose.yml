@@ -9,8 +9,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    volumes:
+        volumes:
       - ./app:/app/app  # allows template/static edits without rebuild
+      - ./migrations:/app/migrations
 
   db:
     image: postgres:16-alpine
