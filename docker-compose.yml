@@ -9,7 +9,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-        volumes:
+    volumes:
       - ./app:/app/app  # allows template/static edits without rebuild
       - ./migrations:/app/migrations
 
