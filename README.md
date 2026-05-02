@@ -13,6 +13,7 @@ Simple time tracking and invoicing for freelancers. Self-hosted, no subscription
 - **Retainer billing** — fixed monthly rate with a configurable hour cap; overage tracked automatically
 - **Hourly billing** — standard rate × hours
 - **Monthly invoices** — auto-generated from your logged hours with one click
+- **Auto-invoicing** — automatically generate and optionally send invoices on the 1st of each month
 - **Project/manual invoices** — custom line items for one-off work
 - **PDF download** — clean, professional invoice PDF for emailing
 - **Harvest import** — bring in your history from Harvest via CSV export
@@ -34,7 +35,7 @@ Designed to run on a Synology NAS, home server, or cheap VPS. Tested on Docker 2
 ### 1. Get the files
 
 ```bash
-git clone https://github.com/yourusername/punch.git
+git clone https://github.com/nate8088/punch.git
 cd punch
 ```
 
@@ -44,15 +45,9 @@ cd punch
 cp .env.example .env
 ```
 
-Open `.env` in a text editor and fill in your details:
+Open `.env` and fill in three values:
 
 ```
-BUSINESS_NAME=Your Name
-BUSINESS_ADDRESS=123 Main Street
-BUSINESS_CITY_STATE_ZIP=Springfield, MA 01101
-BUSINESS_EMAIL=you@example.com
-BUSINESS_PHONE=413-555-1234
-
 # Generate a secret key:
 # python3 -c "import secrets; print(secrets.token_hex(32))"
 SECRET_KEY=paste-your-generated-key-here
@@ -61,21 +56,23 @@ POSTGRES_PASSWORD=choose-a-strong-password
 DATABASE_URL=postgresql://punch:choose-a-strong-password@db:5432/punch
 ```
 
-**Important:** `POSTGRES_PASSWORD` in the `.env` must match the password in `DATABASE_URL`.
+**Important:** `POSTGRES_PASSWORD` and the password in `DATABASE_URL` must match.
+
+Business details (name, address, email, etc.) are configured inside the app under **Settings** — not in `.env`.
 
 ### 3. Start Punch
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 First run will take a minute or two while Docker builds the image.
 
 ### 4. Open Punch
 
-Go to `http://your-server-ip:5000` in your browser.
+Go to `http://your-server-ip:8088` in your browser.
 
-You'll be greeted with a first-run setup screen. Create your username and password.
+You'll be prompted to create an account, then redirected to Settings to fill in your business details.
 
 ---
 
@@ -87,12 +84,12 @@ You'll be greeted with a first-run setup screen. Create your username and passwo
 4. Point it at the `punch` folder
 5. Docker Compose will handle the rest
 
-Access it at `http://your-synology-ip:5000`.
+Access it at `http://your-synology-ip:8088`.
 
 ### With Tailscale (recommended for private access)
 
 If you have Tailscale installed on your Synology and your phone:
-- Access Punch at `http://your-tailscale-hostname:5000` from any device on your tailnet
+- Access Punch at `http://your-tailscale-hostname:8088` from any device on your tailnet
 - No port forwarding, no public exposure
 
 ---
@@ -100,12 +97,12 @@ If you have Tailscale installed on your Synology and your phone:
 ## Adding Punch to Your Phone's Home Screen
 
 **iOS Safari:**
-1. Go to `http://your-server:5000/time/punch`
+1. Go to `http://your-server:8088/time/punch`
 2. Tap the Share button → "Add to Home Screen"
 3. Name it "Punch"
 
 **Android Chrome:**
-1. Go to `http://your-server:5000/time/punch`
+1. Go to `http://your-server:8088/time/punch`
 2. Tap the menu (⋮) → "Add to Home screen"
 
 ---
@@ -120,8 +117,7 @@ Export your time entries from Harvest:
 Then run the import:
 
 ```bash
-# Copy your CSV into the punch folder first
-docker-compose exec app python scripts/import_harvest.py /path/to/harvest_export.csv
+docker compose exec app python scripts/import_harvest.py /path/to/harvest_export.csv
 ```
 
 The script will interactively match Harvest client names to your Punch clients. It's safe to run multiple times — duplicate entries are detected and skipped.
@@ -153,11 +149,23 @@ The script will interactively match Harvest client names to your Punch clients. 
 
 ### Generating a monthly invoice
 
-1. Go to a client's page
+1. Go to a client's detail page
 2. Click **Invoice [Month]** in the top right
 3. Review the line items (retainer + any overage)
 4. Add notes if needed, click **Create Invoice**
 5. Download the PDF and email it
+
+### Auto-invoicing
+
+Punch can automatically generate invoices on the 1st of each month:
+
+1. Go to **Settings → Email / SMTP** and configure your outgoing mail server
+2. Go to **Settings → Auto-invoicing** and choose a mode:
+   - **Draft mode** — creates a draft invoice and emails you a notification to review it
+   - **Send mode** — sends the PDF directly to the client and CCs you
+3. On each client's edit page, enable **Auto-generate monthly invoice**
+
+If Punch is down on the 1st, it will catch up and generate any missed invoices on next startup.
 
 ### Marking an invoice paid
 
@@ -171,7 +179,7 @@ The script will interactively match Harvest client names to your Punch clients. 
 
 ```bash
 git pull
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 Your database is stored in a Docker volume and is not affected by updates.
@@ -183,33 +191,26 @@ Your database is stored in a Docker volume and is not affected by updates.
 Your data lives in the `postgres_data` Docker volume. To back it up:
 
 ```bash
-docker-compose exec db pg_dump -U punch punch > punch_backup_$(date +%Y%m%d).sql
+docker compose exec db pg_dump -U punch punch > punch_backup_$(date +%Y%m%d).sql
 ```
 
 To restore:
 
 ```bash
-cat punch_backup_20250101.sql | docker-compose exec -T db psql -U punch punch
+cat punch_backup_20250101.sql | docker compose exec -T db psql -U punch punch
 ```
 
 ---
 
 ## Configuration Reference
 
-All configuration is in `.env`. Key variables:
+All business details and app preferences are configured inside Punch under **Settings**. The `.env` file only needs three values:
 
 | Variable | Description |
 |---|---|
 | `SECRET_KEY` | Flask session secret. Generate once, never change. |
 | `DATABASE_URL` | PostgreSQL connection string. |
-| `POSTGRES_PASSWORD` | Database password (must match DATABASE_URL). |
-| `BUSINESS_NAME` | Your name/business — appears on all invoices. |
-| `BUSINESS_ADDRESS` | Street address on invoices. |
-| `BUSINESS_CITY_STATE_ZIP` | City/state/zip on invoices. |
-| `BUSINESS_EMAIL` | Your email on invoices. |
-| `BUSINESS_PHONE` | Your phone on invoices. |
-| `INVOICE_START_NUMBER` | First invoice number (default: 1001). |
-| `TZ` | Timezone (default: `America/New_York`). |
+| `POSTGRES_PASSWORD` | Database password (must match `DATABASE_URL`). |
 
 ---
 
