@@ -273,6 +273,11 @@ textarea {
   -webkit-appearance: none;
 }
 
+input[type="datetime-local"],
+input[type="date"] {
+  -webkit-appearance: auto;
+}
+
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
