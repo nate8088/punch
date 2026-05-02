@@ -74,7 +74,7 @@ def generate_monthly_invoice(client, year, month):
 
     subtotal = sum(item["amount"] for item in line_items)
     today = date.today()
-    due_days = int(Setting.get("default_due_days", "30"))
+    due_days = int(Setting.get("default_due_days") or "30")
 
     invoice = Invoice(
         client_id=client.id,
