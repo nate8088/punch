@@ -31,3 +31,29 @@ def index():
         smtp_fields=SMTP_FIELDS,
         current=current,
     )
+
+
+@settings_bp.route("/test-email", methods=["POST"])
+@login_required
+def test_email():
+    from app.services.email import smtp_configured, send_email
+    if not smtp_configured():
+        flash("SMTP is not fully configured. Fill in all email settings first.", "error")
+        return redirect(url_for("settings.index"))
+
+    owner_email = Setting.get("business_email")
+    if not owner_email:
+        flash("No business email set. Add one in Business Details first.", "error")
+        return redirect(url_for("settings.index"))
+
+    try:
+        send_email(
+            to_addresses=owner_email,
+            subject="Punch — test email",
+            body="This is a test email from Punch. Your SMTP settings are working correctly.",
+        )
+        flash(f"Test email sent to {owner_email}.", "success")
+    except Exception as e:
+        flash(f"Email failed: {e}", "error")
+
+    return redirect(url_for("settings.index"))
