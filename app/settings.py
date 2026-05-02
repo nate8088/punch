@@ -1,9 +1,6 @@
 """
 Settings are stored as key-value pairs in the database.
-This lets users configure business details through the UI
-rather than editing the .env file.
 """
-
 from app import db
 
 
@@ -26,7 +23,6 @@ class Setting(db.Model):
         else:
             row = Setting(key=key, value=value)
             db.session.add(row)
-        # Caller is responsible for commit
 
     @staticmethod
     def all_as_dict():
@@ -34,22 +30,28 @@ class Setting(db.Model):
         return {r.key: r.value for r in rows}
 
 
-# Keys and their human-readable labels, in display order
 SETTING_FIELDS = [
     # (key, label, input_type, placeholder)
-    ("business_name",         "Business / your name",     "text",  "Acme Consulting"),
-    ("business_address",      "Street address",            "text",  "123 Main Street"),
-    ("business_city_state_zip","City, state, zip",         "text",  "Springfield, MA 01101"),
-    ("business_email",        "Email",                     "email", "you@example.com"),
-    ("business_phone",        "Phone",                     "text",  "413-555-1234"),
-    ("invoice_start_number",  "Invoice starting number",   "number","1001"),
-    ("default_due_days",      "Default payment terms (days)","number","30"),
-    ("timezone",              "Timezone",                  "text",  "America/New_York"),
+    ("business_name",           "Business / your name",           "text",   "Acme Consulting"),
+    ("business_address",        "Street address",                  "text",   "123 Main Street"),
+    ("business_city_state_zip", "City, state, zip",                "text",   "Springfield, MA 01101"),
+    ("business_email",          "Email",                           "email",  "you@example.com"),
+    ("business_phone",          "Phone",                           "text",   "413-555-1234"),
+    ("invoice_start_number",    "Invoice starting number",         "number", "1001"),
+    ("default_due_days",        "Default payment terms (days)",    "number", "30"),
+    ("timezone",                "Timezone",                        "text",   "America/New_York"),
+]
+
+SMTP_FIELDS = [
+    ("smtp_host",     "SMTP host",         "text",   "smtp.gmail.com"),
+    ("smtp_port",     "SMTP port",         "number", "587"),
+    ("smtp_username", "SMTP username",     "email",  "you@gmail.com"),
+    ("smtp_password", "SMTP password",     "password", ""),
+    ("smtp_from",     "From address",      "email",  "you@gmail.com"),
 ]
 
 
 def get_business():
-    """Return a dict of business settings for use in templates."""
     return {
         "name":           Setting.get("business_name"),
         "address":        Setting.get("business_address"),

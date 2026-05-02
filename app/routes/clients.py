@@ -61,6 +61,7 @@ def edit(client_id):
         client.billing_mode = request.form.get("billing_mode", "hourly")
         client.notes = request.form.get("notes", "").strip()
         client.is_active = request.form.get("is_active") == "on"
+        client.auto_invoice = request.form.get("auto_invoice") == "on"
 
         if client.billing_mode == "retainer":
             client.retainer_amount = request.form.get("retainer_amount") or None

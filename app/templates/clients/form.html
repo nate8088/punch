@@ -100,6 +100,13 @@
         Active client
       </label>
     </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:0.5rem;text-transform:none;letter-spacing:0;">
+        <input type="checkbox" name="auto_invoice" {% if client.auto_invoice %}checked{% endif %}>
+        Auto-generate monthly invoice
+      </label>
+      <div class="form-hint">Requires auto-invoicing to be configured in Settings.</div>
+    </div>
     {% endif %}
 
     <div class="btn-group">

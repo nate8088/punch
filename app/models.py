@@ -50,6 +50,7 @@ class Client(db.Model):
     phone = db.Column(db.String(32))
     notes = db.Column(db.Text)
     is_active = db.Column(db.Boolean, default=True)
+    auto_invoice = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     time_entries = db.relationship("TimeEntry", back_populates="client", lazy="dynamic")
@@ -120,8 +121,9 @@ class TimeEntry(db.Model):
     def stop_timer(self):
         """Stop the running timer and compute rounded duration."""
         if self.ended_at is None:
-            self.ended_at = datetime.now(timezone.utc)
-            started = self.started_at if self.started_at.tzinfo else self.started_at.replace(tzinfo=timezone.utc)
+            now = datetime.utcnow()
+            self.ended_at = now
+            started = self.started_at.replace(tzinfo=None) if self.started_at.tzinfo else self.started_at
             raw = (self.ended_at - started).total_seconds() / 60
             self.duration_minutes = TimeEntry.round_to_15(raw)
 
