@@ -157,6 +157,8 @@ class Invoice(db.Model):
     due_date = db.Column(db.Date)
     paid_date = db.Column(db.Date)
 
+    show_time_detail = db.Column(db.Boolean, default=False)
+
     notes = db.Column(db.Text)
 
     # Import tracking

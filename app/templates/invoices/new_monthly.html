@@ -73,6 +73,12 @@
       <label>Notes (appears on invoice)</label>
       <textarea name="notes" rows="2" placeholder="Payment terms, bank info, thank-you note…"></textarea>
     </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:0.5rem;text-transform:none;letter-spacing:0;">
+        <input type="checkbox" name="show_time_detail">
+        Include time detail on invoice
+      </label>
+    </div>
     <div class="btn-group">
       <button type="submit" class="btn btn-primary">Create invoice</button>
       <a href="{{ url_for('clients.detail', client_id=client.id) }}" class="btn btn-secondary">Cancel</a>

@@ -111,6 +111,7 @@ def new_monthly(client_id):
             issued_date=today,
             due_date=today + timedelta(days=due_days),
             notes=notes,
+            show_time_detail=request.form.get("show_time_detail") == "on",
         )
         db.session.add(invoice)
 

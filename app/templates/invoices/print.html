@@ -248,7 +248,26 @@
     </tr>
   </tfoot>
 </table>
-
+{% if invoice.show_time_detail and invoice.time_entries %}
+<table style="margin-top:2rem;">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Duration</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for entry in invoice.time_entries %}
+    <tr>
+      <td>{{ entry.started_at.strftime('%m/%d/%Y') }}</td>
+      <td>{{ entry.duration_display }}</td>
+      <td>{{ entry.description or '—' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
 {% if invoice.notes %}
 <div class="notes">{{ invoice.notes }}</div>
 {% endif %}
