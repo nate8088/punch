@@ -114,6 +114,7 @@ def new_monthly(client_id):
             show_time_detail=request.form.get("show_time_detail") == "on",
         )
         db.session.add(invoice)
+        db.session.flush()  # get invoice.id before commit
 
         # Link time entries to this invoice
         for entry in entries:
