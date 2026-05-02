@@ -22,11 +22,13 @@
     <div class="form-row">
       <div class="form-group">
         <label>Date / Start time</label>
-        <input type="datetime-local" name="started_at" value="{{ now_local }}" required>
+        <input type="datetime-local" name="started_at" id="started_at" value="{{ now_local }}" required>
+        <input type="hidden" name="started_at_utc" id="started_at_utc">
       </div>
       <div class="form-group">
         <label>End time (optional)</label>
-        <input type="datetime-local" name="ended_at">
+        <input type="datetime-local" name="ended_at" id="ended_at">
+        <input type="hidden" name="ended_at_utc" id="ended_at_utc">
       </div>
     </div>
 
@@ -54,5 +56,18 @@
     </div>
   </form>
 </div>
+
+<script>
+document.querySelector("form").addEventListener("submit", function() {
+    const startVal = document.getElementById("started_at").value;
+    if (startVal) {
+        document.getElementById("started_at_utc").value = new Date(startVal).toISOString().slice(0, 16);
+    }
+    const endVal = document.getElementById("ended_at").value;
+    if (endVal) {
+        document.getElementById("ended_at_utc").value = new Date(endVal).toISOString().slice(0, 16);
+    }
+});
+</script>
 
 {% endblock %}

@@ -131,8 +131,8 @@ def new():
 
     if request.method == "POST":
         client_id = request.form.get("client_id", type=int)
-        started_str = request.form.get("started_at")
-        ended_str = request.form.get("ended_at")
+        started_str = request.form.get("started_at_utc") or request.form.get("started_at")
+        ended_str = request.form.get("ended_at_utc") or request.form.get("ended_at")
         description = request.form.get("description", "").strip()
         is_billable = request.form.get("is_billable") == "on"
 
