@@ -102,9 +102,9 @@ def edit(entry_id):
             raw = (entry.ended_at - entry.started_at).total_seconds() / 60
             entry.duration_minutes = TimeEntry.round_to_15(max(0, raw))
 
-        # Or allow manual duration override
+        # Or allow manual duration override (only if start/end not both set)
         manual_duration = request.form.get("duration_minutes")
-        if manual_duration:
+        if manual_duration and not (started_str and ended_str):
             try:
                 raw_min = int(manual_duration)
                 entry.duration_minutes = TimeEntry.round_to_15(raw_min)
