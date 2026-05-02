@@ -13,7 +13,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -50,7 +50,7 @@ class Client(db.Model):
     phone = db.Column(db.String(32))
     notes = db.Column(db.Text)
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     time_entries = db.relationship("TimeEntry", back_populates="client", lazy="dynamic")
     invoices = db.relationship("Invoice", back_populates="client", lazy="dynamic")
@@ -67,8 +67,8 @@ class TimeEntry(db.Model):
     client_id = db.Column(db.Integer, db.ForeignKey("clients.id"), nullable=False)
     invoice_id = db.Column(db.Integer, db.ForeignKey("invoices.id"), nullable=True)
 
-    started_at = db.Column(db.DateTime, nullable=False)
-    ended_at = db.Column(db.DateTime, nullable=True)   # Null means timer is running
+    started_at = db.Column(db.DateTime(timezone=True), nullable=False)
+    ended_at = db.Column(db.DateTime(timezone=True), nullable=True)
 
     # Duration stored in minutes, rounded to 15-min blocks
     duration_minutes = db.Column(db.Integer)
@@ -83,7 +83,7 @@ class TimeEntry(db.Model):
     imported_from = db.Column(db.String(64))  # e.g. "harvest"
     external_id = db.Column(db.String(64))    # original ID from import source
 
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     client = db.relationship("Client", back_populates="time_entries")
     invoice = db.relationship("Invoice", back_populates="time_entries")
@@ -120,8 +120,9 @@ class TimeEntry(db.Model):
     def stop_timer(self):
         """Stop the running timer and compute rounded duration."""
         if self.ended_at is None:
-            self.ended_at = datetime.utcnow()
-            raw = (self.ended_at - self.started_at).total_seconds() / 60
+            self.ended_at = datetime.now(timezone.utc)
+            started = self.started_at if self.started_at.tzinfo else self.started_at.replace(tzinfo=timezone.utc)
+            raw = (self.ended_at - started).total_seconds() / 60
             self.duration_minutes = TimeEntry.round_to_15(raw)
 
     def __repr__(self):
@@ -165,7 +166,7 @@ class Invoice(db.Model):
     imported_from = db.Column(db.String(64))
     external_id = db.Column(db.String(64))
 
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     client = db.relationship("Client", back_populates="invoices")
     time_entries = db.relationship("TimeEntry", back_populates="invoice")
