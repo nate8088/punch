@@ -188,7 +188,8 @@ def status():
     """JSON endpoint for the punch screen timer display."""
     running = TimeEntry.query.filter_by(ended_at=None).first()
     if running:
-        elapsed = (datetime.now(timezone.utc) - running.started_at).total_seconds()
+        started = running.started_at.replace(tzinfo=timezone.utc) if running.started_at.tzinfo is None else running.started_at
+        elapsed = (datetime.now(timezone.utc) - started).total_seconds()
         return jsonify({
             "running": True,
             "entry_id": running.id,

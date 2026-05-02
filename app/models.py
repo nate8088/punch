@@ -121,6 +121,7 @@ class TimeEntry(db.Model):
         """Stop the running timer and compute rounded duration."""
         if self.ended_at is None:
             self.ended_at = datetime.now(timezone.utc)
+            tarted = self.started_at.replace(tzinfo=timezone.utc) if self.started_at.tzinfo is None else self.started_at
             raw = (self.ended_at - self.started_at).total_seconds() / 60
             self.duration_minutes = TimeEntry.round_to_15(raw)
 
