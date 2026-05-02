@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 280" width="680" height="280">
+  <style>
+    .card { font-family: 'Courier New', monospace; fill: #6a5a28; font-size: 12px; }
+  </style>
+
+  <!-- Card body -->
+  <rect x="20" y="15" width="640" height="250" rx="4" fill="#d2c07a"/>
+  <rect x="20" y="15" width="640" height="250" rx="4" fill="none" stroke="#a89040" stroke-width="1.5"/>
+  <polygon points="20,15 56,15 20,51" fill="#c4b060"/>
+  <line x1="20" y1="51" x2="56" y2="15" stroke="#a89040" stroke-width="1.5"/>
+
+  <!-- Bottom info -->
+  <text x="40" y="260" class="card" font-size="7" fill="#8a7840">1626</text>
+  <text x="340" y="260" class="card" font-size="7" fill="#8a7840" text-anchor="middle" letter-spacing="2">TIME TRACKING · INVOICING</text>
+  <text x="640" y="260" class="card" font-size="7" fill="#8a7840" text-anchor="end">80</text>
+
+  <!-- col0 --><text x="37" y="45" class="card">0</text><text x="37" y="67" class="card">1</text><text x="37" y="89" class="card">2</text><text x="37" y="111" class="card">3</text><text x="37" y="133" class="card">4</text><text x="37" y="155" class="card">5</text><text x="37" y="177" class="card">6</text><text x="37" y="199" class="card">7</text><text x="37" y="221" class="card">8</text><text x="37" y="243" class="card">9</text>
+  <!-- col1 --><text x="63" y="45" class="card">0</text><text x="63" y="67" class="card">1</text><text x="63" y="89" class="card">2</text><text x="63" y="111" class="card">3</text><text x="63" y="133" class="card">4</text><text x="63" y="155" class="card">5</text><text x="63" y="177" class="card">6</text><text x="63" y="199" class="card">7</text><text x="63" y="221" class="card">8</text><text x="63" y="243" class="card">9</text>
+  <!-- col2 --><text x="89" y="45" class="card">0</text><text x="89" y="67" class="card">1</text><text x="89" y="89" class="card">2</text><text x="89" y="111" class="card">3</text><text x="89" y="133" class="card">4</text><text x="89" y="155" class="card">5</text><text x="89" y="177" class="card">6</text><text x="89" y="199" class="card">7</text><text x="89" y="221" class="card">8</text><text x="89" y="243" class="card">9</text>
+  <!-- col3 --><text x="115" y="45" class="card">0</text><text x="115" y="67" class="card">1</text><text x="115" y="89" class="card">2</text><text x="115" y="111" class="card">3</text><text x="115" y="133" class="card">4</text><text x="115" y="155" class="card">5</text><text x="115" y="177" class="card">6</text><text x="115" y="199" class="card">7</text><text x="115" y="221" class="card">8</text><text x="115" y="243" class="card">9</text>
+  <!-- col4 --><text x="141" y="45" class="card">0</text><text x="141" y="67" class="card">1</text><text x="141" y="89" class="card">2</text><text x="141" y="111" class="card">3</text><text x="141" y="133" class="card">4</text><text x="141" y="155" class="card">5</text><text x="141" y="177" class="card">6</text><text x="141" y="199" class="card">7</text><text x="141" y="221" class="card">8</text><text x="141" y="243" class="card">9</text>
+  <!-- col5 --><text x="167" y="45" class="card">0</text><text x="167" y="67" class="card">1</text><text x="167" y="89" class="card">2</text><text x="167" y="111" class="card">3</text><text x="167" y="133" class="card">4</text><text x="167" y="155" class="card">5</text><text x="167" y="177" class="card">6</text><text x="167" y="199" class="card">7</text><text x="167" y="221" class="card">8</text><text x="167" y="243" class="card">9</text>
+  <!-- col6 --><text x="193" y="45" class="card">0</text><text x="193" y="67" class="card">1</text><text x="193" y="89" class="card">2</text><text x="193" y="111" class="card">3</text><text x="193" y="133" class="card">4</text><text x="193" y="155" class="card">5</text><text x="193" y="177" class="card">6</text><text x="193" y="199" class="card">7</text><text x="193" y="221" class="card">8</text><text x="193" y="243" class="card">9</text>
+  <!-- col7 --><text x="219" y="45" class="card">0</text><text x="219" y="67" class="card">1</text><text x="219" y="89" class="card">2</text><text x="219" y="111" class="card">3</text><text x="219" y="133" class="card">4</text><text x="219" y="155" class="card">5</text><text x="219" y="177" class="card">6</text><text x="219" y="199" class="card">7</text><text x="219" y="221" class="card">8</text><text x="219" y="243" class="card">9</text>
+  <!-- col8 --><text x="245" y="45" class="card">0</text><text x="245" y="67" class="card">1</text><text x="245" y="89" class="card">2</text><text x="245" y="111" class="card">3</text><text x="245" y="133" class="card">4</text><text x="245" y="155" class="card">5</text><text x="245" y="177" class="card">6</text><text x="245" y="199" class="card">7</text><text x="245" y="221" class="card">8</text><text x="245" y="243" class="card">9</text>
+  <!-- col9 --><text x="271" y="45" class="card">0</text><text x="271" y="67" class="card">1</text><text x="271" y="89" class="card">2</text><text x="271" y="111" class="card">3</text><text x="271" y="133" class="card">4</text><text x="271" y="155" class="card">5</text><text x="271" y="177" class="card">6</text><text x="271" y="199" class="card">7</text><text x="271" y="221" class="card">8</text><text x="271" y="243" class="card">9</text>
+  <!-- col10 --><text x="297" y="45" class="card">0</text><text x="297" y="67" class="card">1</text><text x="297" y="89" class="card">2</text><text x="297" y="111" class="card">3</text><text x="297" y="133" class="card">4</text><text x="297" y="155" class="card">5</text><text x="297" y="177" class="card">6</text><text x="297" y="199" class="card">7</text><text x="297" y="221" class="card">8</text><text x="297" y="243" class="card">9</text>
+  <!-- col11 --><text x="323" y="45" class="card">0</text><text x="323" y="67" class="card">1</text><text x="323" y="89" class="card">2</text><text x="323" y="111" class="card">3</text><text x="323" y="133" class="card">4</text><text x="323" y="155" class="card">5</text><text x="323" y="177" class="card">6</text><text x="323" y="199" class="card">7</text><text x="323" y="221" class="card">8</text><text x="323" y="243" class="card">9</text>
+  <!-- col12 --><text x="349" y="45" class="card">0</text><text x="349" y="67" class="card">1</text><text x="349" y="89" class="card">2</text><text x="349" y="111" class="card">3</text><text x="349" y="133" class="card">4</text><text x="349" y="155" class="card">5</text><text x="349" y="177" class="card">6</text><text x="349" y="199" class="card">7</text><text x="349" y="221" class="card">8</text><text x="349" y="243" class="card">9</text>
+  <!-- col13 --><text x="375" y="45" class="card">0</text><text x="375" y="67" class="card">1</text><text x="375" y="89" class="card">2</text><text x="375" y="111" class="card">3</text><text x="375" y="133" class="card">4</text><text x="375" y="155" class="card">5</text><text x="375" y="177" class="card">6</text><text x="375" y="199" class="card">7</text><text x="375" y="221" class="card">8</text><text x="375" y="243" class="card">9</text>
+  <!-- col14 --><text x="401" y="45" class="card">0</text><text x="401" y="67" class="card">1</text><text x="401" y="89" class="card">2</text><text x="401" y="111" class="card">3</text><text x="401" y="133" class="card">4</text><text x="401" y="155" class="card">5</text><text x="401" y="177" class="card">6</text><text x="401" y="199" class="card">7</text><text x="401" y="221" class="card">8</text><text x="401" y="243" class="card">9</text>
+  <!-- col15 --><text x="427" y="45" class="card">0</text><text x="427" y="67" class="card">1</text><text x="427" y="89" class="card">2</text><text x="427" y="111" class="card">3</text><text x="427" y="133" class="card">4</text><text x="427" y="155" class="card">5</text><text x="427" y="177" class="card">6</text><text x="427" y="199" class="card">7</text><text x="427" y="221" class="card">8</text><text x="427" y="243" class="card">9</text>
+  <!-- col16 --><text x="453" y="45" class="card">0</text><text x="453" y="67" class="card">1</text><text x="453" y="89" class="card">2</text><text x="453" y="111" class="card">3</text><text x="453" y="133" class="card">4</text><text x="453" y="155" class="card">5</text><text x="453" y="177" class="card">6</text><text x="453" y="199" class="card">7</text><text x="453" y="221" class="card">8</text><text x="453" y="243" class="card">9</text>
+  <!-- col17 --><text x="479" y="45" class="card">0</text><text x="479" y="67" class="card">1</text><text x="479" y="89" class="card">2</text><text x="479" y="111" class="card">3</text><text x="479" y="133" class="card">4</text><text x="479" y="155" class="card">5</text><text x="479" y="177" class="card">6</text><text x="479" y="199" class="card">7</text><text x="479" y="221" class="card">8</text><text x="479" y="243" class="card">9</text>
+  <!-- col18 --><text x="505" y="45" class="card">0</text><text x="505" y="67" class="card">1</text><text x="505" y="89" class="card">2</text><text x="505" y="111" class="card">3</text><text x="505" y="133" class="card">4</text><text x="505" y="155" class="card">5</text><text x="505" y="177" class="card">6</text><text x="505" y="199" class="card">7</text><text x="505" y="221" class="card">8</text><text x="505" y="243" class="card">9</text>
+  <!-- col19 --><text x="531" y="45" class="card">0</text><text x="531" y="67" class="card">1</text><text x="531" y="89" class="card">2</text><text x="531" y="111" class="card">3</text><text x="531" y="133" class="card">4</text><text x="531" y="155" class="card">5</text><text x="531" y="177" class="card">6</text><text x="531" y="199" class="card">7</text><text x="531" y="221" class="card">8</text><text x="531" y="243" class="card">9</text>
+  <!-- col20 --><text x="557" y="45" class="card">0</text><text x="557" y="67" class="card">1</text><text x="557" y="89" class="card">2</text><text x="557" y="111" class="card">3</text><text x="557" y="133" class="card">4</text><text x="557" y="155" class="card">5</text><text x="557" y="177" class="card">6</text><text x="557" y="199" class="card">7</text><text x="557" y="221" class="card">8</text><text x="557" y="243" class="card">9</text>
+  <!-- col21 --><text x="583" y="45" class="card">0</text><text x="583" y="67" class="card">1</text><text x="583" y="89" class="card">2</text><text x="583" y="111" class="card">3</text><text x="583" y="133" class="card">4</text><text x="583" y="155" class="card">5</text><text x="583" y="177" class="card">6</text><text x="583" y="199" class="card">7</text><text x="583" y="221" class="card">8</text><text x="583" y="243" class="card">9</text>
+  <!-- col22 --><text x="609" y="45" class="card">0</text><text x="609" y="67" class="card">1</text><text x="609" y="89" class="card">2</text><text x="609" y="111" class="card">3</text><text x="609" y="133" class="card">4</text><text x="609" y="155" class="card">5</text><text x="609" y="177" class="card">6</text><text x="609" y="199" class="card">7</text><text x="609" y="221" class="card">8</text><text x="609" y="243" class="card">9</text>
+  <!-- col23 --><text x="635" y="45" class="card">0</text><text x="635" y="67" class="card">1</text><text x="635" y="89" class="card">2</text><text x="635" y="111" class="card">3</text><text x="635" y="133" class="card">4</text><text x="635" y="155" class="card">5</text><text x="635" y="177" class="card">6</text><text x="635" y="199" class="card">7</text><text x="635" y="221" class="card">8</text><text x="635" y="243" class="card">9</text>
+
+  <!-- P holes -->
+  <circle cx="41" cy="63" r="9" fill="white"/><circle cx="67" cy="63" r="9" fill="white"/><circle cx="93" cy="63" r="9" fill="white"/><circle cx="119" cy="63" r="9" fill="white"/>
+  <circle cx="41" cy="85" r="9" fill="white"/><circle cx="119" cy="85" r="9" fill="white"/>
+  <circle cx="41" cy="107" r="9" fill="white"/><circle cx="119" cy="107" r="9" fill="white"/>
+  <circle cx="41" cy="129" r="9" fill="white"/><circle cx="67" cy="129" r="9" fill="white"/><circle cx="93" cy="129" r="9" fill="white"/>
+  <circle cx="41" cy="151" r="9" fill="white"/>
+  <circle cx="41" cy="173" r="9" fill="white"/>
+  <circle cx="41" cy="195" r="9" fill="white"/>
+  <circle cx="41" cy="217" r="9" fill="white"/>
+
+  <!-- U holes -->
+  <circle cx="171" cy="63" r="9" fill="white"/><circle cx="249" cy="63" r="9" fill="white"/>
+  <circle cx="171" cy="85" r="9" fill="white"/><circle cx="249" cy="85" r="9" fill="white"/>
+  <circle cx="171" cy="107" r="9" fill="white"/><circle cx="249" cy="107" r="9" fill="white"/>
+  <circle cx="171" cy="129" r="9" fill="white"/><circle cx="249" cy="129" r="9" fill="white"/>
+  <circle cx="171" cy="151" r="9" fill="white"/><circle cx="249" cy="151" r="9" fill="white"/>
+  <circle cx="171" cy="173" r="9" fill="white"/><circle cx="249" cy="173" r="9" fill="white"/>
+  <circle cx="171" cy="195" r="9" fill="white"/><circle cx="249" cy="195" r="9" fill="white"/>
+  <circle cx="197" cy="217" r="9" fill="white"/><circle cx="223" cy="217" r="9" fill="white"/>
+
+  <!-- N holes -->
+  <circle cx="301" cy="63" r="9" fill="white"/><circle cx="379" cy="63" r="9" fill="white"/>
+  <circle cx="301" cy="85" r="9" fill="white"/><circle cx="379" cy="85" r="9" fill="white"/>
+  <circle cx="301" cy="107" r="9" fill="white"/><circle cx="327" cy="107" r="9" fill="white"/><circle cx="379" cy="107" r="9" fill="white"/>
+  <circle cx="301" cy="129" r="9" fill="white"/><circle cx="379" cy="129" r="9" fill="white"/>
+  <circle cx="301" cy="151" r="9" fill="white"/><circle cx="353" cy="151" r="9" fill="white"/><circle cx="379" cy="151" r="9" fill="white"/>
+  <circle cx="301" cy="173" r="9" fill="white"/><circle cx="379" cy="173" r="9" fill="white"/>
+  <circle cx="301" cy="195" r="9" fill="white"/><circle cx="379" cy="195" r="9" fill="white"/>
+  <circle cx="301" cy="217" r="9" fill="white"/><circle cx="379" cy="217" r="9" fill="white"/>
+
+  <!-- C holes -->
+  <circle cx="457" cy="63" r="9" fill="white"/><circle cx="483" cy="63" r="9" fill="white"/><circle cx="509" cy="63" r="9" fill="white"/>
+  <circle cx="431" cy="85" r="9" fill="white"/>
+  <circle cx="431" cy="107" r="9" fill="white"/>
+  <circle cx="431" cy="129" r="9" fill="white"/>
+  <circle cx="431" cy="151" r="9" fill="white"/>
+  <circle cx="431" cy="173" r="9" fill="white"/>
+  <circle cx="431" cy="195" r="9" fill="white"/>
+  <circle cx="457" cy="217" r="9" fill="white"/><circle cx="483" cy="217" r="9" fill="white"/><circle cx="509" cy="217" r="9" fill="white"/>
+
+  <!-- H holes -->
+  <circle cx="561" cy="63" r="9" fill="white"/><circle cx="639" cy="63" r="9" fill="white"/>
+  <circle cx="561" cy="85" r="9" fill="white"/><circle cx="639" cy="85" r="9" fill="white"/>
+  <circle cx="561" cy="107" r="9" fill="white"/><circle cx="639" cy="107" r="9" fill="white"/>
+  <circle cx="561" cy="129" r="9" fill="white"/><circle cx="587" cy="129" r="9" fill="white"/><circle cx="613" cy="129" r="9" fill="white"/><circle cx="639" cy="129" r="9" fill="white"/>
+  <circle cx="561" cy="151" r="9" fill="white"/><circle cx="639" cy="151" r="9" fill="white"/>
+  <circle cx="561" cy="173" r="9" fill="white"/><circle cx="639" cy="173" r="9" fill="white"/>
+  <circle cx="561" cy="195" r="9" fill="white"/><circle cx="639" cy="195" r="9" fill="white"/>
+  <circle cx="561" cy="217" r="9" fill="white"/><circle cx="639" cy="217" r="9" fill="white"/>
+</svg>

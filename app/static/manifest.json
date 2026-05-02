@@ -4,12 +4,17 @@
   "description": "Simple time tracking and invoicing for freelancers",
   "start_url": "/time/punch",
   "display": "standalone",
-  "background_color": "#111111",
-  "theme_color": "#1a1a1a",
+  "background_color": "#d2c07a",
+  "theme_color": "#d2c07a",
   "icons": [
     {
-      "src": "/static/icon-192.png",
-      "sizes": "192x192",
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/apple-touch-icon.png",
+      "sizes": "180x180",
       "type": "image/png"
     }
   ]
