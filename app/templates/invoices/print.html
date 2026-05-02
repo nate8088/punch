@@ -206,6 +206,12 @@
   <div class="bill-to-label">Bill to</div>
   <strong>{{ invoice.client.name }}</strong>
   {% if invoice.client.contact_name %}<span>{{ invoice.client.contact_name }}</span>{% endif %}
+  {% if invoice.client.address %}
+    {% for line in invoice.client.address.splitlines() %}
+      <span>{{ line }}</span>
+    {% endfor %}
+  {% endif %}
+  {% if invoice.client.phone %}<span>{{ invoice.client.phone }}</span>{% endif %}
   {% if invoice.client.contact_email %}<span>{{ invoice.client.contact_email }}</span>{% endif %}
 </div>
 
@@ -230,15 +236,15 @@
     <tr>
       <td>{{ item.description }}</td>
       <td class="text-right">{{ item.quantity }}</td>
-      <td class="text-right">${{ "%.2f"|format(item.unit_price) }}</td>
-      <td class="text-right">${{ "%.2f"|format(item.amount) }}</td>
+      <td class="text-right">${{ "{:,.2f}".format(item.unit_price) }}</td>
+      <td class="text-right">${{ "{:,.2f}".format(item.amount) }}</td>
     </tr>
     {% endfor %}
   </tbody>
   <tfoot>
     <tr class="total-row">
       <td colspan="3" class="text-right">Total due</td>
-      <td class="text-right amount">${{ "%.2f"|format(invoice.total) }}</td>
+      <td class="text-right amount">${{ "{:,.2f}".format(invoice.total) }}</td>
     </tr>
   </tfoot>
 </table>

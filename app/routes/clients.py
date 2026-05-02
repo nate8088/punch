@@ -23,6 +23,8 @@ def new():
             name=request.form.get("name", "").strip(),
             contact_name=request.form.get("contact_name", "").strip(),
             contact_email=request.form.get("contact_email", "").strip(),
+            address=request.form.get("address", "").strip(),
+            phone=request.form.get("phone", "").strip(),
             billing_mode=request.form.get("billing_mode", "hourly"),
             notes=request.form.get("notes", "").strip(),
         )
@@ -54,6 +56,8 @@ def edit(client_id):
         client.name = request.form.get("name", "").strip()
         client.contact_name = request.form.get("contact_name", "").strip()
         client.contact_email = request.form.get("contact_email", "").strip()
+        client.address = request.form.get("address", "").strip()
+        client.phone = request.form.get("phone", "").strip()
         client.billing_mode = request.form.get("billing_mode", "hourly")
         client.notes = request.form.get("notes", "").strip()
         client.is_active = request.form.get("is_active") == "on"

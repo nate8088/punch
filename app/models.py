@@ -46,7 +46,8 @@ class Client(db.Model):
 
     # Hourly settings (also used for overage on retainer clients)
     hourly_rate = db.Column(db.Numeric(10, 2))
-
+    address = db.Column(db.Text)
+    phone = db.Column(db.String(32))
     notes = db.Column(db.Text)
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
