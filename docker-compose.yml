@@ -18,6 +18,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      - PGTZ=UTC
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
