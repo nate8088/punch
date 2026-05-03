@@ -19,39 +19,55 @@
 
 {% for row in rows %}
 <div class="unbilled-client">
-  <div class="unbilled-client-header">
+  <div class="unbilled-client-header" role="button" onclick="toggleClient(this)" style="cursor:pointer;">
     <h2>
-      <a href="{{ url_for('clients.detail', client_id=row.client.id) }}">{{ row.client.name }}</a>
+      <span class="toggle-icon">▶</span>
+      <a href="{{ url_for('clients.detail', client_id=row.client.id) }}"
+         onclick="event.stopPropagation()">{{ row.client.name }}</a>
     </h2>
     <span class="unbilled-hours">{{ "%.2f"|format(row.hours) }} hrs</span>
   </div>
 
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Duration</th>
-        <th>Description</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for entry in row.entries %}
-      <tr>
-        <td>{{ entry.started_at.strftime("%b %-d, %Y") }}</td>
-        <td>{{ "%.2f"|format(entry.duration_hours) }} hrs</td>
-        <td class="entry-description">{{ entry.description or "—" }}</td>
-        <td class="text-right">
-          <a href="{{ url_for('time.edit', entry_id=entry.id) }}" class="action-link">Edit</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="unbilled-entries" style="display:none;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Duration</th>
+          <th>Description</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in row.entries %}
+        <tr>
+          <td>{{ entry.started_at.strftime("%b %-d, %Y") }}</td>
+          <td>{{ "%.2f"|format(entry.duration_hours) }} hrs</td>
+          <td class="entry-description">{{ entry.description or "—" }}</td>
+          <td class="text-right">
+            <a href="{{ url_for('time.edit', entry_id=entry.id) }}" class="action-link">Edit</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endfor %}
 
 {% else %}
 <p class="empty-state">No unbilled time entries. You're all caught up.</p>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleClient(header) {
+  const entries = header.nextElementSibling;
+  const icon = header.querySelector('.toggle-icon');
+  const expanded = entries.style.display !== 'none';
+  entries.style.display = expanded ? 'none' : 'block';
+  icon.textContent = expanded ? '▶' : '▼';
+}
+</script>
 {% endblock %}
