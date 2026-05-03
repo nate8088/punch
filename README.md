@@ -1,3 +1,5 @@
+> **Personal project, shared as-is.** I built Punch for my own freelance workflow and open-sourced it in case it's useful to others. It comes with no support, no warranty, and no promise of updates. Feel free to fork it and make it your own.
+
 # Punch
 
 Simple time tracking and invoicing for freelancers. Self-hosted, no subscriptions, no nonsense.
