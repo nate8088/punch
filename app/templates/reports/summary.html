@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Reports – Punch{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Reports</h1>
+  <div class="header-tabs">
+    <a href="{{ url_for('reports.summary') }}" class="btn btn-primary">Summary</a>
+    <a href="{{ url_for('reports.unbilled') }}" class="btn btn-secondary">Unbilled</a>
+  </div>
+</div>
+
+<form method="get" class="filter-form">
+  <div class="filter-row">
+    <label for="start">From</label>
+    <input type="date" id="start" name="start" value="{{ start.isoformat() }}">
+    <label for="end">To</label>
+    <input type="date" id="end" name="end" value="{{ end.isoformat() }}">
+    <button type="submit" class="btn btn-primary">Apply</button>
+  </div>
+</form>
+
+{% if rows %}
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Client</th>
+      <th class="text-right">Total Hours</th>
+      <th class="text-right">Billed Hours</th>
+      <th class="text-right">Revenue</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td>
+        <a href="{{ url_for('clients.detail', client_id=row.client.id) }}">{{ row.client.name }}</a>
+        <span class="badge badge-{{ row.client.billing_mode }}">{{ row.client.billing_mode }}</span>
+      </td>
+      <td class="text-right">{{ "%.2f"|format(row.total_hours) }}</td>
+      <td class="text-right">{{ "%.2f"|format(row.billable_hours) }}</td>
+      <td class="text-right">${{ "%.2f"|format(row.revenue) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+  <tfoot>
+    <tr class="totals-row">
+      <td><strong>Total</strong></td>
+      <td class="text-right"><strong>{{ "%.2f"|format(totals.hours) }}</strong></td>
+      <td class="text-right"><strong>{{ "%.2f"|format(totals.billable_hours) }}</strong></td>
+      <td class="text-right"><strong>${{ "%.2f"|format(totals.revenue) }}</strong></td>
+    </tr>
+  </tfoot>
+</table>
+{% else %}
+<p class="empty-state">No time entries found for this date range.</p>
+{% endif %}
+{% endblock %}

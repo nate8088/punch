@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Unbilled Hours – Punch{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Reports</h1>
+  <div class="header-tabs">
+    <a href="{{ url_for('reports.summary') }}" class="btn btn-secondary">Summary</a>
+    <a href="{{ url_for('reports.unbilled') }}" class="btn btn-primary">Unbilled</a>
+  </div>
+</div>
+
+{% if rows %}
+<p class="report-meta">
+  {{ rows|length }} client{% if rows|length != 1 %}s{% endif %} with unbilled time —
+  <strong>{{ "%.2f"|format(total_hours) }} hrs</strong> total
+</p>
+
+{% for row in rows %}
+<div class="unbilled-client">
+  <div class="unbilled-client-header">
+    <h2>
+      <a href="{{ url_for('clients.detail', client_id=row.client.id) }}">{{ row.client.name }}</a>
+    </h2>
+    <span class="unbilled-hours">{{ "%.2f"|format(row.hours) }} hrs</span>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Duration</th>
+        <th>Description</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in row.entries %}
+      <tr>
+        <td>{{ entry.started_at.strftime("%b %-d, %Y") }}</td>
+        <td>{{ "%.2f"|format(entry.duration_hours) }} hrs</td>
+        <td class="entry-description">{{ entry.description or "—" }}</td>
+        <td class="text-right">
+          <a href="{{ url_for('time.edit', entry_id=entry.id) }}" class="action-link">Edit</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endfor %}
+
+{% else %}
+<p class="empty-state">No unbilled time entries. You're all caught up.</p>
+{% endif %}
+{% endblock %}

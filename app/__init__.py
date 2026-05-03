@@ -33,6 +33,7 @@ def create_app():
     from app.routes.invoices import invoices_bp
     from app.routes.dashboard import dashboard_bp
     from app.routes.settings import settings_bp
+    from app.routes.reports import reports_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(clients_bp)
@@ -40,6 +41,7 @@ def create_app():
     app.register_blueprint(invoices_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(settings_bp)
+    app.register_blueprint(reports_bp)
 
     @app.context_processor
     def inject_business():
