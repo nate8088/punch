@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, date, timedelta
 from app import db
 from app.models import TimeEntry, Client
 import math
@@ -147,6 +147,7 @@ def new():
             if manual and not ended_at:
                 try:
                     duration_minutes = TimeEntry.round_to_15(int(manual))
+                    ended_at = started_at + timedelta(minutes=duration_minutes)
                 except ValueError:
                     pass
 
