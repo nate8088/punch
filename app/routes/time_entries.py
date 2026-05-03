@@ -142,11 +142,11 @@ def new():
                 raw = (ended_at - started_at).total_seconds() / 60
                 duration_minutes = TimeEntry.round_to_15(max(0, raw))
 
-            # Allow direct minute entry if no end time
-            manual = request.form.get("duration_minutes")
+            # Allow direct hour entry if no end time
+            manual = request.form.get("duration_hours")
             if manual and not ended_at:
                 try:
-                    duration_minutes = TimeEntry.round_to_15(int(manual))
+                    duration_minutes = TimeEntry.round_to_15(float(manual) * 60)
                     ended_at = started_at + timedelta(minutes=duration_minutes)
                 except ValueError:
                     pass
