@@ -21,6 +21,7 @@
     <a href="{{ url_for('clients.index') }}" class="nav-link {% if 'clients' in request.endpoint %}active{% endif %}">Clients</a>
     <a href="{{ url_for('time.index') }}" class="nav-link {% if request.endpoint == 'time.index' %}active{% endif %}">Time</a>
     <a href="{{ url_for('invoices.index') }}" class="nav-link {% if 'invoices' in request.endpoint %}active{% endif %}">Invoices</a>
+    <a href="{{ url_for('reports.summary') }}" class="nav-link {% if 'reports' in request.endpoint %}active{% endif %}">Reports</a>
     <a href="{{ url_for('settings.index') }}" class="nav-link {% if request.endpoint == 'settings.index' %}active{% endif %}">Settings</a>
     <a href="{{ url_for('auth.logout') }}" class="nav-link">Out</a>
   </div>
