@@ -2,6 +2,8 @@
 
 # Punch
 
+![Punch](logo.png)
+
 Simple time tracking and invoicing for freelancers. Self-hosted, no subscriptions, no nonsense.
 
 **Built for:** Solo contractors who bill one or more clients, some on retainer, some hourly. Punch tracks your hours, generates invoices, and stays out of your way.
