@@ -16,6 +16,7 @@ Simple time tracking and invoicing for freelancers. Self-hosted, no subscription
 - **Auto-invoicing** — automatically generate and optionally send invoices on the 1st of each month
 - **Project/manual invoices** — custom line items for one-off work
 - **PDF download** — clean, professional invoice PDF for emailing
+- **Reports** — per-client summary with hours and revenue over any date range; unbilled hours view grouped by client
 - **Harvest import** — bring in your history from Harvest via CSV export
 - **Multi-device** — runs on your own hardware, accessible from phone + desktop via Tailscale (or any network)
 
@@ -122,6 +123,8 @@ docker compose exec app python scripts/import_harvest.py /path/to/harvest_export
 
 The script will interactively match Harvest client names to your Punch clients. It's safe to run multiple times — duplicate entries are detected and skipped.
 
+**Note:** Imported entries will not be linked to any invoices, even if those entries were previously billed in Harvest. To clean up the unbilled report after an import, create a placeholder invoice for each client (invoice type: project, status: paid) and link the historical entries to it via the database. See the Unbilled Hours section below for context.
+
 ---
 
 ## Usage
@@ -147,6 +150,10 @@ The script will interactively match Harvest client names to your Punch clients. 
 - Go to **Time → New Entry**
 - Set client, date/time, and duration
 
+**Editing an entry:**
+- Duration can be overridden manually — if you enter a value in the Duration field, it takes priority over the calculated start/end difference.
+- Duration is always rounded up to the nearest 15-minute block.
+
 ### Generating a monthly invoice
 
 1. Go to a client's detail page
@@ -166,6 +173,18 @@ Punch can automatically generate invoices on the 1st of each month:
 3. On each client's edit page, enable **Auto-generate monthly invoice**
 
 If Punch is down on the 1st, it will catch up and generate any missed invoices on next startup.
+
+### Reports
+
+Go to **Reports** in the nav.
+
+**Summary** — select a date range (defaults to current year) and see each client's total hours, billed hours, and revenue. Revenue is calculated from billed entries only — hourly clients by rate × hours, retainer clients by months billed plus any overage.
+
+**Unbilled** — shows all completed time entries with no invoice attached, grouped by client. Click a client row to expand and see individual entries. Each entry has an Edit link for quick corrections.
+
+### Unbilled hours and imported history
+
+The unbilled report shows entries where `invoice_id IS NULL`. If you imported history from Harvest, those entries will appear as unbilled even if they were previously invoiced. To suppress them, create a placeholder invoice in Punch (status: paid) and link the entries to it.
 
 ### Marking an invoice paid
 
