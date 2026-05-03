@@ -47,20 +47,19 @@ def summary():
         billable_hours = sum(e.duration_hours for e in entries if e.invoice_id is not None)
 
         if client.billing_mode == "hourly":
-            revenue = billable_hours * (client.hourly_rate or 0)
+            revenue = billable_hours * float(client.hourly_rate or 0)
+
         elif client.billing_mode == "retainer":
-            # Count distinct months that have at least one billed entry
+            # Count distinct billed months for retainer fee
             billed_months = set()
-            overage_hours = 0.0
             for e in entries:
                 if e.invoice_id is not None:
-                    month_key = (e.started_at.year, e.started_at.month)
-                    billed_months.add(month_key)
-            retainer_revenue = len(billed_months) * (client.retainer_amount or 0)
+                    billed_months.add((e.started_at.year, e.started_at.month))
+            retainer_revenue = len(billed_months) * float(client.retainer_amount or 0)
 
-            # Overage: per month, hours beyond cap on billed invoices
-            if client.included_hours and client.overage_rate:
-                from itertools import groupby
+            # Overage: hours beyond cap per billed month
+            overage_revenue = 0.0
+            if client.retainer_hours and client.overage_rate:
                 billed_entries = [e for e in entries if e.invoice_id is not None]
                 month_map = {}
                 for e in billed_entries:
@@ -68,10 +67,11 @@ def summary():
                     month_map.setdefault(key, 0.0)
                     month_map[key] += e.duration_hours
                 for hrs in month_map.values():
-                    if hrs > client.included_hours:
-                        overage_hours += hrs - client.included_hours
+                    if hrs > float(client.retainer_hours):
+                        overage_revenue += (hrs - float(client.retainer_hours)) * float(client.overage_rate)
 
-            revenue = retainer_revenue + overage_hours * (client.overage_rate or 0)
+            revenue = retainer_revenue + overage_revenue
+
         else:
             revenue = 0.0
 
