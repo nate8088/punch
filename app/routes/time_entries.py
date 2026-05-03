@@ -84,30 +84,27 @@ def edit(entry_id):
         entry.description = request.form.get("description", "").strip()
         entry.is_billable = request.form.get("is_billable") == "on"
 
-        # Allow manual time correction
         started_str = request.form.get("started_at")
         ended_str = request.form.get("ended_at")
+        manual_duration = request.form.get("duration_minutes")
 
         if started_str:
             entry.started_at = parse_local_datetime(started_str)
         if ended_str:
             entry.ended_at = parse_local_datetime(ended_str)
 
-        # Recalculate duration if times changed
-        if entry.started_at and entry.ended_at:
+        # Manual duration wins if explicitly provided
+        if manual_duration:
+            try:
+                entry.duration_minutes = TimeEntry.round_to_15(int(manual_duration))
+            except ValueError:
+                pass
+        elif entry.started_at and entry.ended_at:
+            # Fall back to calculating from timestamps
             started = entry.started_at.replace(tzinfo=None) if entry.started_at.tzinfo else entry.started_at
             ended = entry.ended_at.replace(tzinfo=None) if entry.ended_at.tzinfo else entry.ended_at
             raw = (ended - started).total_seconds() / 60
             entry.duration_minutes = TimeEntry.round_to_15(max(0, raw))
-
-        # Or allow manual duration override (only if start/end not both set)
-        manual_duration = request.form.get("duration_minutes")
-        if manual_duration and not (started_str and ended_str):
-            try:
-                raw_min = int(manual_duration)
-                entry.duration_minutes = TimeEntry.round_to_15(raw_min)
-            except ValueError:
-                pass
 
         client_id = request.form.get("client_id", type=int)
         if client_id:
