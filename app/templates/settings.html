@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Settings — Punch{% endblock %}
 {% block content %}
-
+ 
 <div class="page-header">
   <div class="page-title">Settings</div>
 </div>
-
+ 
 <div class="card" style="max-width:520px;">
   <div class="card-title">Business details</div>
   <p class="text-muted text-sm mb-2">These appear on all invoices.</p>
@@ -21,7 +21,7 @@
     <button type="submit" class="btn btn-primary">Save settings</button>
   </form>
 </div>
-
+ 
 <div class="card" style="max-width:520px;">
   <div class="card-title">Auto-invoicing</div>
   <p class="text-muted text-sm mb-2">
@@ -42,18 +42,26 @@
     <button type="submit" class="btn btn-primary">Save</button>
   </form>
 </div>
-
+ 
 <div class="card" style="max-width:520px;">
   <div class="card-title">Email / SMTP</div>
-  <p class="text-muted text-sm mb-2">Required for auto-invoicing email notifications.</p>
+  <p class="text-muted text-sm mb-2">Required for sending invoices and auto-invoicing notifications.</p>
+  <p class="text-muted text-sm mb-2">
+    <strong>Using Gmail?</strong> You'll need a
+    <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">Google App Password</a>
+    (requires 2FA on the Google account). Your normal Gmail password won't work.
+  </p>
   <form method="POST">
     {% for key, label, input_type, placeholder in smtp_fields %}
     <div class="form-group">
       <label>{{ label }}</label>
       <input type="{{ input_type }}" name="{{ key }}"
              value="{% if input_type != 'password' %}{{ current.get(key, '') }}{% endif %}"
-             placeholder="{{ placeholder }}"
+             placeholder="{% if input_type == 'password' and current.get(key) %}•••••••• (leave blank to keep current){% else %}{{ placeholder }}{% endif %}"
              autocomplete="{% if input_type == 'password' %}new-password{% else %}off{% endif %}">
+      {% if input_type == 'password' %}
+        <div class="text-sm text-muted">Leave blank to keep the current password. Type a new one to replace it.</div>
+      {% endif %}
     </div>
     {% endfor %}
        <button type="submit" class="btn btn-primary">Save</button>
@@ -62,11 +70,11 @@
     <button type="submit" class="btn btn-secondary btn-sm">Send test email</button>
   </form>
 </div>
-
+ 
 <div class="card" style="max-width:520px;">
   <div class="card-title">Account</div>
-
+ 
   <a href="{{ url_for('auth.change_password') }}" class="btn btn-secondary btn-sm">Change password</a>
 </div>
-
+ 
 {% endblock %}

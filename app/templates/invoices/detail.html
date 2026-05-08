@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ invoice.invoice_number }} — Punch{% endblock %}
 {% block content %}
-
+ 
 <div class="page-header">
   <div>
     <div class="page-title mono">{{ invoice.invoice_number }}</div>
@@ -12,18 +12,30 @@
     <a href="{{ url_for('invoices.download_pdf', invoice_id=invoice.id) }}" class="btn btn-secondary btn-sm">Download PDF</a>
     {% if invoice.client.contact_email and smtp_ok %}
       <a href="{{ url_for('invoices.send_to_client', invoice_id=invoice.id) }}" class="btn btn-primary btn-sm">Send to client</a>
-    {% else %}
-      <span class="btn btn-primary btn-sm" style="opacity:0.5;cursor:not-allowed;"
-            title="{% if not invoice.client.contact_email %}No contact email set for {{ invoice.client.name }}.{% else %}SMTP is not configured. Visit Settings to set it up.{% endif %}">
-        Send to client
-      </span>
-      {% if not smtp_ok %}
-        <a href="{{ url_for('settings.index') }}" class="btn btn-ghost btn-sm">Configure SMTP</a>
-      {% endif %}
     {% endif %}
   </div>
 </div>
-
+ 
+{% if not (invoice.client.contact_email and smtp_ok) %}
+<div class="card" style="border-left:3px solid #d97706;">
+  <div style="font-weight:600;">Can't send this invoice yet</div>
+  <ul class="text-sm" style="margin:0.5rem 0 0 1.25rem;padding:0;">
+    {% if not invoice.client.contact_email %}
+      <li>
+        {{ invoice.client.name }} has no contact email.
+        <a href="{{ url_for('clients.edit', client_id=invoice.client.id) }}">Add one on the client record →</a>
+      </li>
+    {% endif %}
+    {% if not smtp_ok %}
+      <li>
+        SMTP isn't configured.
+        <a href="{{ url_for('settings.index') }}">Open Settings to set it up →</a>
+      </li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+ 
 <!-- Status controls -->
 <div class="card">
   <div class="card-title">Status</div>
@@ -45,7 +57,7 @@
   <div class="text-sm text-muted mt-1">Paid {{ invoice.paid_date.strftime('%B %d, %Y') }}</div>
   {% endif %}
 </div>
-
+ 
 <!-- Line items -->
 <div class="card">
   <div class="card-title">Line items</div>
@@ -78,7 +90,7 @@
     </table>
   </div>
 </div>
-
+ 
 <!-- Metadata -->
 <div class="card">
   <div class="card-title">Details</div>
@@ -106,7 +118,7 @@
   <div class="mt-2 text-sm text-muted">{{ invoice.notes }}</div>
   {% endif %}
 </div>
-
+ 
 <!-- Associated time entries -->
 {% if invoice.time_entries %}
 <div class="card">
@@ -127,5 +139,5 @@
   </div>
 </div>
 {% endif %}
-
+ 
 {% endblock %}
