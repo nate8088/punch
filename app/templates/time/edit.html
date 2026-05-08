@@ -8,7 +8,7 @@
 </div>
 
 <div class="card">
-  <form method="POST">
+  <form method="POST" data-time-form>
     <div class="form-group">
       <label>Client</label>
       <select name="client_id">
@@ -22,12 +22,14 @@
       <div class="form-group">
         <label>Started</label>
         <input type="datetime-local" name="started_at"
-          value="{{ entry.started_at.strftime('%Y-%m-%dT%H:%M') if entry.started_at else '' }}">
+               data-utc-source="{{ entry.started_at.strftime('%Y-%m-%dT%H:%M:%SZ') if entry.started_at else '' }}">
+        <input type="hidden" name="started_at_utc" data-utc-target="started_at">
       </div>
       <div class="form-group">
         <label>Ended</label>
         <input type="datetime-local" name="ended_at"
-          value="{{ entry.ended_at.strftime('%Y-%m-%dT%H:%M') if entry.ended_at else '' }}">
+               data-utc-source="{{ entry.ended_at.strftime('%Y-%m-%dT%H:%M:%SZ') if entry.ended_at else '' }}">
+        <input type="hidden" name="ended_at_utc" data-utc-target="ended_at">
       </div>
     </div>
 
@@ -50,7 +52,7 @@
       </label>
     </div>
 
-  <div class="btn-group">
+    <div class="btn-group">
       <button type="submit" class="btn btn-primary">Save</button>
       <a href="{{ url_for('clients.detail', client_id=entry.client_id) }}" class="btn btn-secondary">Cancel</a>
     </div>

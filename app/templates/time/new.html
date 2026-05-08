@@ -8,7 +8,7 @@
 </div>
 
 <div class="card">
-  <form method="POST">
+  <form method="POST" data-time-form>
     <div class="form-group">
       <label>Client</label>
       <select name="client_id" required>
@@ -22,13 +22,14 @@
     <div class="form-row">
       <div class="form-group">
         <label>Date / Start time</label>
-        <input type="datetime-local" name="started_at" id="started_at" value="{{ now_local }}" placeholder="MM/DD/YYYY HH:MM" required>
-        <input type="hidden" name="started_at_utc" id="started_at_utc">
+        <input type="datetime-local" name="started_at"
+               data-utc-source="{{ now_utc }}" required>
+        <input type="hidden" name="started_at_utc" data-utc-target="started_at">
       </div>
       <div class="form-group">
         <label>End time (optional)</label>
-        <input type="datetime-local" name="ended_at" id="ended_at">
-        <input type="hidden" name="ended_at_utc" id="ended_at_utc">
+        <input type="datetime-local" name="ended_at">
+        <input type="hidden" name="ended_at_utc" data-utc-target="ended_at">
       </div>
     </div>
 
@@ -56,18 +57,5 @@
     </div>
   </form>
 </div>
-
-<script>
-document.querySelector("form").addEventListener("submit", function() {
-    const startVal = document.getElementById("started_at").value;
-    if (startVal) {
-        document.getElementById("started_at_utc").value = new Date(startVal).toISOString().slice(0, 16);
-    }
-    const endVal = document.getElementById("ended_at").value;
-    if (endVal) {
-        document.getElementById("ended_at_utc").value = new Date(endVal).toISOString().slice(0, 16);
-    }
-});
-</script>
 
 {% endblock %}

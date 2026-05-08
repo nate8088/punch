@@ -1,5 +1,57 @@
 // Punch — client JS
-// Handles: live timer display, billing mode toggle, line item management
+// Handles: live timer display, billing mode toggle, line item management,
+// timezone conversion for datetime-local inputs
+
+// ── Timezone helpers ────────────────────────────────────────────────────────
+
+// Convert a UTC ISO string (e.g. "2026-05-07T11:42:00Z") to a value
+// suitable for <input type="datetime-local"> (local time, no TZ).
+function utcISOToLocalInput(utcISO) {
+  if (!utcISO) return "";
+  const d = new Date(utcISO);
+  if (isNaN(d.getTime())) return "";
+  // Build "YYYY-MM-DDTHH:MM" in LOCAL time
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// Convert a datetime-local input value (local time) to a UTC string
+// the server can parse as naive UTC: "YYYY-MM-DDTHH:MM"
+function localInputToUTCString(localVal) {
+  if (!localVal) return "";
+  const d = new Date(localVal); // interpreted as local
+  if (isNaN(d.getTime())) return "";
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+}
+
+// Initialize a time entry form (new or edit).
+// - On load: any input with [data-utc-source] gets its value set from a
+//   UTC ISO string in that data attribute, converted to local.
+// - On submit: any [data-utc-target] input gets the UTC version of its
+//   sibling input's value.
+function initTimeEntryForm() {
+  // Populate inputs from UTC sources on load
+  document.querySelectorAll("input[data-utc-source]").forEach(input => {
+    const utcISO = input.dataset.utcSource;
+    if (utcISO) {
+      input.value = utcISOToLocalInput(utcISO);
+    }
+  });
+
+  // On submit, write UTC values into hidden _utc fields
+  document.querySelectorAll("form[data-time-form]").forEach(form => {
+    form.addEventListener("submit", () => {
+      form.querySelectorAll("input[data-utc-target]").forEach(hidden => {
+        const sourceName = hidden.dataset.utcTarget;
+        const visible = form.querySelector(`input[name="${sourceName}"]`);
+        if (visible) {
+          hidden.value = localInputToUTCString(visible.value);
+        }
+      });
+    });
+  });
+}
 
 // ── Live timer ──────────────────────────────────────────────────────────────
 
@@ -71,7 +123,6 @@ function initBillingModeToggle() {
 
   radios.forEach(r => r.addEventListener("change", () => update(r.value)));
 
-  // Set initial state
   const checked = document.querySelector('input[name="billing_mode"]:checked');
   if (checked) update(checked.value);
 }
@@ -113,7 +164,6 @@ function initLineItems() {
     });
   }
 
-  // Bind existing rows
   container.querySelectorAll(".line-item-row").forEach(bindRow);
 
   addBtn.addEventListener("click", () => {
@@ -133,7 +183,6 @@ function initConfirmForms() {
     el.addEventListener("submit", e => {
       if (!confirm(el.dataset.confirm)) e.preventDefault();
     });
-    // Also handle buttons that are inside forms
     el.addEventListener("click", e => {
       if (el.tagName === "BUTTON" && el.dataset.confirm) {
         if (!confirm(el.dataset.confirm)) e.preventDefault();
@@ -149,4 +198,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initBillingModeToggle();
   initLineItems();
   initConfirmForms();
+  initTimeEntryForm();
 });

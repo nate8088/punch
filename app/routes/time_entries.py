@@ -84,14 +84,17 @@ def edit(entry_id):
         entry.description = request.form.get("description", "").strip()
         entry.is_billable = request.form.get("is_billable") == "on"
 
-        started_str = request.form.get("started_at")
-        ended_str = request.form.get("ended_at")
+        # Prefer UTC-converted values from JS; fall back to raw inputs
+        started_str = request.form.get("started_at_utc") or request.form.get("started_at")
+        ended_str = request.form.get("ended_at_utc") or request.form.get("ended_at")
         manual_duration = request.form.get("duration_minutes")
 
         if started_str:
             entry.started_at = parse_local_datetime(started_str)
         if ended_str:
             entry.ended_at = parse_local_datetime(ended_str)
+        else:
+            entry.ended_at = None
 
         # Manual duration wins if explicitly provided
         if manual_duration:
@@ -164,8 +167,9 @@ def new():
             flash("Time entry added.", "success")
             return redirect(url_for("clients.detail", client_id=client_id))
 
-    now_local = datetime.utcnow().strftime("%Y-%m-%dT%H:%M")
-    return render_template("time/new.html", clients=clients, preselect_client=preselect_client, now_local=now_local)
+    # Send UTC ISO so JS can convert to local for the input
+    now_utc = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    return render_template("time/new.html", clients=clients, preselect_client=preselect_client, now_utc=now_utc)
 
 
 @time_bp.route("/<int:entry_id>/delete", methods=["POST"])
