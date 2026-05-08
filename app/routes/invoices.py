@@ -13,15 +13,24 @@ invoices_bp = Blueprint("invoices", __name__, url_prefix="/invoices")
 def next_invoice_number():
     """Generate the next sequential invoice number."""
     from app.settings import Setting
-    last = Invoice.query.order_by(Invoice.id.desc()).first()
-    if last:
+    # Find the highest existing invoice number numerically
+    invoices = Invoice.query.all()
+    max_n = 0
+    for inv in invoices:
         try:
-            n = int(last.invoice_number.replace("INV-", ""))
-            return f"INV-{n + 1}"
+            n = int(inv.invoice_number.replace("INV-", ""))
+            if n > max_n:
+                max_n = n
         except (ValueError, AttributeError):
             pass
-    start = int(Setting.get("invoice_start_number", "1001"))
-    return f"INV-{start}"
+    if max_n > 0:
+        candidate = max_n + 1
+    else:
+        candidate = int(Setting.get("invoice_start_number", "1001"))
+    # Safety check — keep incrementing until we find a free number
+    while Invoice.query.filter_by(invoice_number=f"INV-{candidate}").first():
+        candidate += 1
+    return f"INV-{candidate}"
 
 
 @invoices_bp.route("/")
