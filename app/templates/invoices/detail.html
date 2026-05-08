@@ -9,7 +9,18 @@
   </div>
   <div class="btn-group">
     <a href="{{ url_for('invoices.print_view', invoice_id=invoice.id) }}" class="btn btn-secondary btn-sm" target="_blank">Print view</a>
-    <a href="{{ url_for('invoices.download_pdf', invoice_id=invoice.id) }}" class="btn btn-primary btn-sm">Download PDF</a>
+    <a href="{{ url_for('invoices.download_pdf', invoice_id=invoice.id) }}" class="btn btn-secondary btn-sm">Download PDF</a>
+    {% if invoice.client.contact_email and smtp_ok %}
+      <a href="{{ url_for('invoices.send_to_client', invoice_id=invoice.id) }}" class="btn btn-primary btn-sm">Send to client</a>
+    {% else %}
+      <span class="btn btn-primary btn-sm" style="opacity:0.5;cursor:not-allowed;"
+            title="{% if not invoice.client.contact_email %}No contact email set for {{ invoice.client.name }}.{% else %}SMTP is not configured. Visit Settings to set it up.{% endif %}">
+        Send to client
+      </span>
+      {% if not smtp_ok %}
+        <a href="{{ url_for('settings.index') }}" class="btn btn-ghost btn-sm">Configure SMTP</a>
+      {% endif %}
+    {% endif %}
   </div>
 </div>
 

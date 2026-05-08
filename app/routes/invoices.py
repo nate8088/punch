@@ -210,7 +210,12 @@ def new_manual():
 @login_required
 def detail(invoice_id):
     invoice = db.get_or_404(Invoice, invoice_id)
-    return render_template("invoices/detail.html", invoice=invoice)
+    from app.services.email import smtp_configured
+    return render_template(
+        "invoices/detail.html",
+        invoice=invoice,
+        smtp_ok=smtp_configured(),
+    )
 
 
 @invoices_bp.route("/<int:invoice_id>/print")
@@ -254,6 +259,88 @@ def update_status(invoice_id):
         db.session.commit()
         flash(f"Invoice marked as {new_status}.", "success")
     return redirect(url_for("invoices.detail", invoice_id=invoice_id))
+
+
+@invoices_bp.route("/<int:invoice_id>/send", methods=["GET", "POST"])
+@login_required
+def send_to_client(invoice_id):
+    """Review and send an invoice to the client via email."""
+    from app.services.email import smtp_configured, send_email, build_invoice_email
+    from app.settings import Setting
+
+    invoice = db.get_or_404(Invoice, invoice_id)
+    client = invoice.client
+
+    # Hard guards — these shouldn't be reachable since the button is disabled,
+    # but a direct URL hit could land here.
+    if not smtp_configured():
+        flash("SMTP is not fully configured. Fill in email settings first.", "error")
+        return redirect(url_for("invoices.detail", invoice_id=invoice.id))
+
+    if not client.contact_email:
+        flash(f"{client.name} has no contact email set. Add one on the client record first.", "error")
+        return redirect(url_for("invoices.detail", invoice_id=invoice.id))
+
+    owner_email = Setting.get("business_email")
+
+    if request.method == "POST":
+        to_address = request.form.get("to_address", "").strip()
+        subject = request.form.get("subject", "").strip()
+        body = request.form.get("body", "").strip()
+        send_copy = request.form.get("send_copy") == "on"
+        attach_pdf = request.form.get("attach_pdf") == "on"
+
+        if not to_address or not subject or not body:
+            flash("To, Subject, and Body are all required.", "error")
+            return redirect(url_for("invoices.send_to_client", invoice_id=invoice.id))
+
+        # Generate PDF if requested
+        pdf_bytes = None
+        pdf_filename = None
+        if attach_pdf:
+            try:
+                from weasyprint import HTML
+                html = render_template("invoices/print.html", invoice=invoice, pdf_mode=True)
+                pdf_bytes = HTML(string=html).write_pdf()
+                pdf_filename = f"invoice-{invoice.invoice_number}.pdf"
+            except Exception as e:
+                flash(f"PDF generation failed: {e}", "error")
+                return redirect(url_for("invoices.send_to_client", invoice_id=invoice.id))
+
+        cc = owner_email if (send_copy and owner_email) else None
+
+        try:
+            send_email(
+                to_addresses=to_address,
+                subject=subject,
+                body=body,
+                cc_addresses=cc,
+                pdf_bytes=pdf_bytes,
+                pdf_filename=pdf_filename,
+            )
+        except Exception as e:
+            flash(f"Email failed: {e}", "error")
+            return redirect(url_for("invoices.send_to_client", invoice_id=invoice.id))
+
+        # Flip status to sent (only if not already paid — don't downgrade a paid invoice)
+        if invoice.status != "paid":
+            invoice.status = "sent"
+            db.session.commit()
+
+        flash(f"Invoice {invoice.invoice_number} sent to {to_address}.", "success")
+        return redirect(url_for("invoices.detail", invoice_id=invoice.id))
+
+    # GET — render the review page with defaults
+    defaults = build_invoice_email(invoice)
+    return render_template(
+        "invoices/send.html",
+        invoice=invoice,
+        client=client,
+        owner_email=owner_email,
+        default_to=client.contact_email,
+        default_subject=defaults["subject"],
+        default_body=defaults["body"],
+    )
 
 
 @invoices_bp.route("/<int:invoice_id>/delete", methods=["POST"])

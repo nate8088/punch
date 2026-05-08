@@ -104,7 +104,7 @@ def maybe_send_invoice(invoice, client, app):
     """
     Send invoice email if mode is 'send', otherwise just notify owner of draft.
     """
-    from app.services.email import smtp_configured, send_email
+    from app.services.email import smtp_configured, send_email, build_invoice_email
     if not smtp_configured():
         log.warning("SMTP not configured, skipping email.")
         return
@@ -127,20 +127,11 @@ def maybe_send_invoice(invoice, client, app):
 
     if mode == "send" and client.contact_email:
         # Auto-send to client, CC owner
-        subject = f"Invoice {invoice.invoice_number} from {Setting.get('business_name')}"
-        body = (
-            f"Hi {client.contact_name or client.name},\n\n"
-            f"Please find attached invoice {invoice.invoice_number} "
-            f"for {invoice.period_start.strftime('%B %Y')}.\n\n"
-            f"Amount due: ${invoice.total}\n"
-            f"Due date: {invoice.due_date.strftime('%B %d, %Y')}\n\n"
-            f"Thank you for your business.\n\n"
-            f"{Setting.get('business_name')}"
-        )
+        email_content = build_invoice_email(invoice)
         send_email(
             to_addresses=client.contact_email,
-            subject=subject,
-            body=body,
+            subject=email_content["subject"],
+            body=email_content["body"],
             cc_addresses=owner_email if owner_email else None,
             pdf_bytes=pdf_bytes,
             pdf_filename=pdf_filename,

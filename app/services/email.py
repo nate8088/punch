@@ -61,3 +61,39 @@ def send_email(to_addresses, subject, body, cc_addresses=None, pdf_bytes=None, p
         server.starttls(context=context)
         server.login(s["username"], s["password"])
         server.sendmail(s["from"], all_recipients, msg.as_string())
+
+
+def build_invoice_email(invoice):
+    """
+    Build the default subject and body for an invoice email.
+    Returns a dict: {"subject": str, "body": str}
+    Used by both auto-invoicing and the manual send flow so copy stays consistent.
+    """
+    business_name = Setting.get("business_name") or "Punch"
+    client = invoice.client
+
+    if invoice.period_start:
+        period_label = invoice.period_start.strftime("%B %Y")
+        period_line = f"for {period_label}"
+    else:
+        period_line = ""
+
+    subject = f"Invoice {invoice.invoice_number} from {business_name}"
+
+    greeting_name = client.contact_name or client.name
+    due_line = (
+        f"Due date: {invoice.due_date.strftime('%B %d, %Y')}\n"
+        if invoice.due_date else ""
+    )
+
+    body = (
+        f"Hi {greeting_name},\n\n"
+        f"Please find attached invoice {invoice.invoice_number}"
+        f"{(' ' + period_line) if period_line else ''}.\n\n"
+        f"Amount due: ${invoice.total}\n"
+        f"{due_line}"
+        f"\nThank you for your business.\n\n"
+        f"{business_name}"
+    )
+
+    return {"subject": subject, "body": body}
