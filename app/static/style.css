@@ -300,7 +300,7 @@ textarea {
 
 input[type="datetime-local"],
 input[type="date"] {
-  -webkit-appearance: auto;
+  color-scheme: dark;
 }
 
 input:focus, select:focus, textarea:focus {
