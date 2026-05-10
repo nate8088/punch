@@ -1,8 +1,9 @@
 import os
+import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade as migrate_upgrade
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,6 +11,8 @@ load_dotenv()
 db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
+
+log = logging.getLogger(__name__)
 
 
 def create_app():
@@ -51,8 +54,20 @@ def create_app():
         from app.settings import get_business
         return {"business": get_business()}
 
-    with app.app_context():
-        db.create_all()
+    # Run any pending Alembic migrations on startup. This replaces the old
+    # db.create_all() call: on a fresh install it builds the schema from
+    # 0001 forward; on an existing install it applies any new migrations
+    # since the last boot. Failures here halt startup loudly rather than
+    # being silently papered over (which is what create_all() did).
+    # Skipped when FLASK_SKIP_MIGRATE=1 so CLI tools like `flask db ...`
+    # can run without recursion.
+    if os.environ.get("FLASK_SKIP_MIGRATE") != "1":
+        with app.app_context():
+            try:
+                migrate_upgrade()
+            except Exception as e:
+                log.exception("Alembic upgrade failed at startup: %s", e)
+                raise
 
     # Start scheduler (skip in migration/CLI contexts)
     if os.environ.get("FLASK_SKIP_SCHEDULER") != "1":
