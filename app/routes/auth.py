@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 from app.models import User
+from app.services.audit import log_event
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -22,9 +23,23 @@ def login():
 
         if user and user.check_password(password):
             login_user(user, remember=True)
+            log_event(
+                "auth.login_success",
+                f"User '{user.username}' logged in.",
+                entity_type="user",
+                entity_id=user.id,
+                user_id=user.id,  # explicit because current_user wasn't set when log_event was called
+            )
+            db.session.commit()
             next_page = request.args.get("next")
             return redirect(next_page or url_for("dashboard.index"))
         else:
+            log_event(
+                "auth.login_failure",
+                f"Failed login attempt for username '{username}'.",
+                meta={"username_attempted": username},
+            )
+            db.session.commit()
             flash("Invalid username or password.", "error")
 
     return render_template("login.html")
@@ -51,6 +66,14 @@ def setup():
             user = User(username=username)
             user.set_password(password)
             db.session.add(user)
+            db.session.flush()  # so user.id is available for the audit row
+            log_event(
+                "auth.account_created",
+                f"Initial account '{user.username}' created.",
+                entity_type="user",
+                entity_id=user.id,
+                user_id=user.id,
+            )
             db.session.commit()
             login_user(user)
             flash("Account created. Fill in your business details to get started.", "success")
@@ -62,6 +85,13 @@ def setup():
 @auth_bp.route("/logout")
 @login_required
 def logout():
+    log_event(
+        "auth.logout",
+        f"User '{current_user.username}' logged out.",
+        entity_type="user",
+        entity_id=current_user.id,
+    )
+    db.session.commit()
     logout_user()
     return redirect(url_for("auth.login"))
 
@@ -82,6 +112,12 @@ def change_password():
             flash("Password must be at least 8 characters.", "error")
         else:
             current_user.set_password(new_pw)
+            log_event(
+                "auth.password_changed",
+                f"User '{current_user.username}' changed their password.",
+                entity_type="user",
+                entity_id=current_user.id,
+            )
             db.session.commit()
             flash("Password updated.", "success")
             return redirect(url_for("dashboard.index"))

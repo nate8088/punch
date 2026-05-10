@@ -12,6 +12,7 @@ from app import db
 from app.models import Client, Invoice, TimeEntry
 from app.settings import Setting
 from app.routes.invoices import next_invoice_number
+from app.services.audit import log_event
 
 log = logging.getLogger(__name__)
 
@@ -95,6 +96,12 @@ def generate_monthly_invoice(client, year, month):
     for entry in entries:
         entry.invoice_id = invoice.id
 
+    log_event(
+        "auto_invoice.invoice_created",
+        f"Auto-generated invoice {invoice.invoice_number} for {client.name} ({month_start.strftime('%B %Y')}, ${invoice.total}).",
+        entity_type="invoice",
+        entity_id=invoice.id,
+    )
     db.session.commit()
     log.info(f"Created invoice {invoice.invoice_number} for {client.name} {month_start.strftime('%B %Y')}")
     return invoice
@@ -137,6 +144,13 @@ def maybe_send_invoice(invoice, client, app):
             pdf_filename=pdf_filename,
         )
         invoice.status = "sent"
+        log_event(
+            "email.invoice_sent",
+            f"Auto-sent invoice {invoice.invoice_number} to {client.contact_email}" + (f" (CC {owner_email})" if owner_email else "") + ".",
+            entity_type="invoice",
+            entity_id=invoice.id,
+            meta={"to": client.contact_email, "cc": owner_email, "trigger": "auto"},
+        )
         db.session.commit()
         log.info(f"Sent invoice {invoice.invoice_number} to {client.contact_email}")
     else:
@@ -157,6 +171,14 @@ def maybe_send_invoice(invoice, client, app):
                 pdf_bytes=pdf_bytes,
                 pdf_filename=pdf_filename,
             )
+            log_event(
+                "email.draft_notification",
+                f"Notified owner of draft invoice {invoice.invoice_number}.",
+                entity_type="invoice",
+                entity_id=invoice.id,
+                meta={"to": owner_email},
+            )
+            db.session.commit()
         log.info(f"Draft invoice {invoice.invoice_number} created, owner notified.")
 
 
@@ -210,5 +232,13 @@ def run_auto_invoicing(app):
                     maybe_send_invoice(invoice, client, app)
 
         Setting.set("auto_invoice_last_run", today.isoformat())
+        log_event(
+            "auto_invoice.run_completed",
+            f"Auto-invoice scheduler ran. Processed {len(months_to_process)} month(s) for {len(clients)} client(s).",
+            meta={
+                "months_processed": len(months_to_process),
+                "clients_processed": len(clients),
+            },
+        )
         db.session.commit()
         log.info(f"Auto-invoicing complete. Processed {len(months_to_process)} month(s) for {len(clients)} client(s).")

@@ -175,3 +175,38 @@ class Invoice(db.Model):
 
     def __repr__(self):
         return f"<Invoice {self.invoice_number} {self.status}>"
+
+
+class AuditLog(db.Model):
+    """A timestamped record of an auditable event in Punch.
+
+    Events are written via app.services.audit.log_event() which is called from
+    routes / services. Records are append-only from the app's perspective
+    (no edit UI), but can be pruned by the retention job in scheduler.py.
+    """
+    __tablename__ = "audit_log"
+
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime(timezone=True), nullable=False, index=True,
+                          default=lambda: datetime.now(timezone.utc))
+
+    # Short dotted identifier, e.g. 'invoice.sent', 'time_entry.created'
+    event_type = db.Column(db.String(64), nullable=False, index=True)
+
+    # Human-readable description for display in the audit log UI
+    description = db.Column(db.Text, nullable=False)
+
+    # Optional reference to the affected record
+    entity_type = db.Column(db.String(32))   # e.g. 'invoice', 'client', 'time_entry'
+    entity_id = db.Column(db.Integer)
+
+    # Who did it (null = system event, e.g. scheduler)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"))
+
+    # Event-specific structured data (recipients, before/after values, etc.)
+    meta = db.Column(db.JSON)
+
+    user = db.relationship("User")
+
+    def __repr__(self):
+        return f"<AuditLog {self.event_type} @ {self.timestamp.isoformat()}>"

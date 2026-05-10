@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Audit log — Punch{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <div class="page-title">Audit log</div>
+    <div class="page-subtitle">A timestamped record of activity in Punch.</div>
+  </div>
+</div>
+
+<div class="card">
+  <form method="GET" style="display:flex;gap:1rem;flex-wrap:wrap;align-items:end;">
+    <div class="form-group" style="margin-bottom:0;flex:1 1 200px;">
+      <label>Category</label>
+      <select name="group" onchange="this.form.submit()">
+        {% for key, label, _ in groups %}
+          <option value="{{ key }}" {% if active_group == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group" style="margin-bottom:0;flex:1 1 200px;">
+      <label>Time range</label>
+      <select name="days" onchange="this.form.submit()">
+        <option value="7"   {% if active_days == '7' %}selected{% endif %}>Last 7 days</option>
+        <option value="30"  {% if active_days == '30' %}selected{% endif %}>Last 30 days</option>
+        <option value="90"  {% if active_days == '90' %}selected{% endif %}>Last 90 days</option>
+        <option value="365" {% if active_days == '365' %}selected{% endif %}>Last year</option>
+        <option value="all" {% if active_days == 'all' %}selected{% endif %}>All time</option>
+      </select>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  {% if entries.items %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:170px;">When</th>
+          <th style="width:140px;">Event</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in entries.items %}
+        <tr>
+          <td class="mono text-sm td-muted" data-utc-source="{{ e.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') }}" data-display="local">
+            {{ e.timestamp.strftime('%Y-%m-%d %H:%M UTC') }}
+          </td>
+          <td class="mono text-sm">{{ e.event_type }}</td>
+          <td class="text-sm">{{ e.description }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if entries.pages > 1 %}
+  <div class="btn-group" style="margin-top:1rem;justify-content:center;">
+    {% if entries.has_prev %}
+      <a href="{{ url_for('audit.index', page=entries.prev_num, group=active_group, days=active_days) }}" class="btn btn-secondary btn-sm">← Newer</a>
+    {% endif %}
+    <span class="text-muted text-sm" style="align-self:center;">Page {{ entries.page }} of {{ entries.pages }}</span>
+    {% if entries.has_next %}
+      <a href="{{ url_for('audit.index', page=entries.next_num, group=active_group, days=active_days) }}" class="btn btn-secondary btn-sm">Older →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <p class="text-muted">No events match the current filters.</p>
+  {% endif %}
+</div>
+
+<script>
+  // Convert the UTC timestamps in the table to local time on page load.
+  document.querySelectorAll('[data-utc-source][data-display="local"]').forEach(el => {
+    const utc = el.getAttribute('data-utc-source');
+    if (!utc) return;
+    const d = new Date(utc);
+    if (isNaN(d.getTime())) return;
+    const pad = n => String(n).padStart(2, '0');
+    el.textContent = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  });
+</script>
+
+{% endblock %}

@@ -3,6 +3,7 @@ from flask_login import login_required
 from datetime import datetime, timezone, date, timedelta
 from app import db
 from app.models import TimeEntry, Client
+from app.services.audit import log_event
 import math
 
 time_bp = Blueprint("time", __name__, url_prefix="/time")
@@ -56,6 +57,14 @@ def punch_in():
         is_billable=True,
     )
     db.session.add(entry)
+    db.session.flush()
+    client = db.session.get(Client, client_id)
+    log_event(
+        "time_entry.punched_in",
+        f"Punched in for {client.name}.",
+        entity_type="time_entry",
+        entity_id=entry.id,
+    )
     db.session.commit()
     return redirect(url_for("time.punch"))
 
@@ -69,6 +78,12 @@ def punch_out():
         return redirect(url_for("time.punch"))
 
     entry.stop_timer()
+    log_event(
+        "time_entry.punched_out",
+        f"Punched out for {entry.client.name} ({entry.duration_display}).",
+        entity_type="time_entry",
+        entity_id=entry.id,
+    )
     db.session.commit()
     flash(f"Punched out. {entry.duration_display} logged.", "success")
     return redirect(url_for("time.edit", entry_id=entry.id))
@@ -113,6 +128,12 @@ def edit(entry_id):
         if client_id:
             entry.client_id = client_id
 
+        log_event(
+            "time_entry.updated",
+            f"Updated time entry for {entry.client.name} ({entry.duration_display}).",
+            entity_type="time_entry",
+            entity_id=entry.id,
+        )
         db.session.commit()
         flash("Time entry updated.", "success")
         return redirect(url_for("clients.detail", client_id=entry.client_id))
@@ -163,6 +184,13 @@ def new():
                 is_billable=is_billable,
             )
             db.session.add(entry)
+            db.session.flush()
+            log_event(
+                "time_entry.created",
+                f"Manually created time entry for {entry.client.name} ({entry.duration_display}).",
+                entity_type="time_entry",
+                entity_id=entry.id,
+            )
             db.session.commit()
             flash("Time entry added.", "success")
             return redirect(url_for("clients.detail", client_id=client_id))
@@ -177,6 +205,14 @@ def new():
 def delete(entry_id):
     entry = db.get_or_404(TimeEntry, entry_id)
     client_id = entry.client_id
+    # Capture details for the audit log before the row is gone
+    audit_desc = f"Deleted time entry for {entry.client.name} ({entry.duration_display})."
+    log_event(
+        "time_entry.deleted",
+        audit_desc,
+        entity_type="time_entry",
+        entity_id=entry.id,
+    )
     db.session.delete(entry)
     db.session.commit()
     flash("Time entry deleted.", "success")

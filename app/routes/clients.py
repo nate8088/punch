@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required
 from app import db
 from app.models import Client, TimeEntry, Invoice
+from app.services.audit import log_event
 from datetime import datetime
 import calendar
 
@@ -40,6 +41,13 @@ def new():
             flash("Client name is required.", "error")
         else:
             db.session.add(client)
+            db.session.flush()  # so client.id is available
+            log_event(
+                "client.created",
+                f"Created client '{client.name}' ({client.billing_mode}).",
+                entity_type="client",
+                entity_id=client.id,
+            )
             db.session.commit()
             flash(f"Client '{client.name}' created.", "success")
             return redirect(url_for("clients.index"))
@@ -53,6 +61,9 @@ def edit(client_id):
     client = db.get_or_404(Client, client_id)
 
     if request.method == "POST":
+        # Capture pre-edit state to detect deactivation specifically
+        was_active = client.is_active
+
         client.name = request.form.get("name", "").strip()
         client.contact_name = request.form.get("contact_name", "").strip()
         client.contact_email = request.form.get("contact_email", "").strip()
@@ -77,6 +88,28 @@ def edit(client_id):
         if not client.name:
             flash("Client name is required.", "error")
         else:
+            # Distinguish deactivation from a regular edit so the audit log reads cleanly
+            if was_active and not client.is_active:
+                log_event(
+                    "client.deactivated",
+                    f"Deactivated client '{client.name}'.",
+                    entity_type="client",
+                    entity_id=client.id,
+                )
+            elif not was_active and client.is_active:
+                log_event(
+                    "client.reactivated",
+                    f"Reactivated client '{client.name}'.",
+                    entity_type="client",
+                    entity_id=client.id,
+                )
+            else:
+                log_event(
+                    "client.updated",
+                    f"Updated client '{client.name}'.",
+                    entity_type="client",
+                    entity_id=client.id,
+                )
             db.session.commit()
             flash(f"Client '{client.name}' updated.", "success")
             return redirect(url_for("clients.index"))

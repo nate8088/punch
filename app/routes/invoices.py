@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 from app import db
 from app.models import Invoice, Client, TimeEntry
+from app.services.audit import log_event
 import calendar
 import json
 
@@ -129,6 +130,12 @@ def new_monthly(client_id):
         for entry in entries:
             entry.invoice_id = invoice.id
 
+        log_event(
+            "invoice.created",
+            f"Created monthly invoice {invoice.invoice_number} for {client.name} ({month_start.strftime('%B %Y')}, ${invoice.total}).",
+            entity_type="invoice",
+            entity_id=invoice.id,
+        )
         db.session.commit()
         flash(f"Invoice {invoice.invoice_number} created.", "success")
         return redirect(url_for("invoices.detail", invoice_id=invoice.id))
@@ -199,6 +206,14 @@ def new_manual():
             notes=notes,
         )
         db.session.add(invoice)
+        db.session.flush()
+        client = db.session.get(Client, client_id)
+        log_event(
+            "invoice.created",
+            f"Created manual invoice {invoice.invoice_number} for {client.name} (${invoice.total}).",
+            entity_type="invoice",
+            entity_id=invoice.id,
+        )
         db.session.commit()
         flash(f"Invoice {invoice.invoice_number} created.", "success")
         return redirect(url_for("invoices.detail", invoice_id=invoice.id))
@@ -253,9 +268,18 @@ def update_status(invoice_id):
     invoice = db.get_or_404(Invoice, invoice_id)
     new_status = request.form.get("status")
     if new_status in ("draft", "sent", "paid"):
+        old_status = invoice.status
         invoice.status = new_status
         if new_status == "paid" and not invoice.paid_date:
             invoice.paid_date = date.today()
+        if old_status != new_status:
+            log_event(
+                "invoice.status_changed",
+                f"Invoice {invoice.invoice_number} status changed: {old_status} → {new_status}.",
+                entity_type="invoice",
+                entity_id=invoice.id,
+                meta={"from": old_status, "to": new_status},
+            )
         db.session.commit()
         flash(f"Invoice marked as {new_status}.", "success")
     return redirect(url_for("invoices.detail", invoice_id=invoice_id))
@@ -325,7 +349,19 @@ def send_to_client(invoice_id):
         # Flip status to sent (only if not already paid — don't downgrade a paid invoice)
         if invoice.status != "paid":
             invoice.status = "sent"
-            db.session.commit()
+
+        recipients_meta = {"to": to_address}
+        if cc:
+            recipients_meta["cc"] = cc
+
+        log_event(
+            "email.invoice_sent",
+            f"Sent invoice {invoice.invoice_number} to {to_address}" + (f" (CC {cc})" if cc else "") + ".",
+            entity_type="invoice",
+            entity_id=invoice.id,
+            meta=recipients_meta,
+        )
+        db.session.commit()
 
         flash(f"Invoice {invoice.invoice_number} sent to {to_address}.", "success")
         return redirect(url_for("invoices.detail", invoice_id=invoice.id))
@@ -347,9 +383,16 @@ def send_to_client(invoice_id):
 @login_required
 def delete(invoice_id):
     invoice = db.get_or_404(Invoice, invoice_id)
+    audit_desc = f"Deleted invoice {invoice.invoice_number} for {invoice.client.name} (${invoice.total})."
     # Unlink time entries
     for entry in invoice.time_entries:
         entry.invoice_id = None
+    log_event(
+        "invoice.deleted",
+        audit_desc,
+        entity_type="invoice",
+        entity_id=invoice.id,
+    )
     db.session.delete(invoice)
     db.session.commit()
     flash("Invoice deleted.", "success")
