@@ -9,3 +9,14 @@ dist/
 build/
 .venv/
 venv/
+# Data files (never commit real client data)
+*.csv
+*.xlsx
+
+# Stray script copies inside the app/ tree
+app/scripts/
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
