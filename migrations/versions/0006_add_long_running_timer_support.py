@@ -9,7 +9,7 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision = '0006_add_long_running_timer_support'
+revision = '0006_long_running_timer'
 down_revision = '0005_add_audit_log'
 branch_labels = None
 depends_on = None
