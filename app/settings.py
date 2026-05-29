@@ -50,6 +50,12 @@ SMTP_FIELDS = [
     ("smtp_from",     "From address",      "email",  "you@gmail.com"),
 ]
 
+# Standalone field (not in SETTING_FIELDS so it can live in its own card in settings.html).
+# Defined here so routes/settings.py can include it in the saveable key list.
+TIMER_ALERT_FIELDS = [
+    ("long_running_timer_hours", "Alert me if a timer runs longer than (hours)", "number", "8"),
+]
+
 
 def get_business():
     return {

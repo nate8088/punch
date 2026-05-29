@@ -84,6 +84,10 @@ class TimeEntry(db.Model):
     imported_from = db.Column(db.String(64))  # e.g. "harvest"
     external_id = db.Column(db.String(64))    # original ID from import source
 
+    # Set when a "you have a long-running timer" reminder email is sent.
+    # NULL = no reminder sent yet. Prevents repeated nagging for the same entry.
+    long_running_notified_at = db.Column(db.DateTime(timezone=True), nullable=True)
+
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     client = db.relationship("Client", back_populates="time_entries")

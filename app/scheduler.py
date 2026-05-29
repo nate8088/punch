@@ -1,6 +1,7 @@
 """
 APScheduler configuration for Punch.
-Runs auto-invoicing on the 1st of each month and prunes the audit log nightly.
+Runs auto-invoicing on the 1st of each month, prunes the audit log nightly,
+and checks for long-running timers every 15 minutes.
 """
 from flask_apscheduler import APScheduler
 
@@ -22,4 +23,16 @@ def init_scheduler(app):
         with app.app_context():
             prune_old_entries()
 
+    @scheduler.task("interval", id="long_running_timer_check", minutes=15)
+    def long_running_timer_job():
+        from app.services.long_running_timer import check_long_running_timers
+        with app.app_context():
+            check_long_running_timers()
+
     scheduler.start()
+
+    # Catch-up: run once at startup so an open timer that crossed the
+    # threshold while the app was down still gets a reminder.
+    from app.services.long_running_timer import check_long_running_timers
+    with app.app_context():
+        check_long_running_timers()

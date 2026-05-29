@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Settings — Punch{% endblock %}
 {% block content %}
- 
+
 <div class="page-header">
   <div class="page-title">Settings</div>
 </div>
- 
+
 <div class="card" style="max-width:520px;">
   <div class="card-title">Business details</div>
   <p class="text-muted text-sm mb-2">These appear on all invoices.</p>
@@ -21,7 +21,7 @@
     <button type="submit" class="btn btn-primary">Save settings</button>
   </form>
 </div>
- 
+
 <div class="card" style="max-width:520px;">
   <div class="card-title">Auto-invoicing</div>
   <p class="text-muted text-sm mb-2">
@@ -42,7 +42,26 @@
     <button type="submit" class="btn btn-primary">Save</button>
   </form>
 </div>
- 
+
+<div class="card" style="max-width:520px;">
+  <div class="card-title">Timer alerts</div>
+  <p class="text-muted text-sm mb-2">
+    Email yourself if a timer has been running too long &mdash; helpful for catching the
+    "I forgot to punch out last night" mistake. Set to 0 to disable. Sends one reminder per entry.
+  </p>
+  <form method="POST">
+    {% for key, label, input_type, placeholder in timer_alert_fields %}
+    <div class="form-group">
+      <label>{{ label }}</label>
+      <input type="{{ input_type }}" name="{{ key }}"
+             value="{{ current.get(key, '') }}"
+             placeholder="{{ placeholder }}">
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Save</button>
+  </form>
+</div>
+
 <div class="card" style="max-width:520px;">
   <div class="card-title">Email / SMTP</div>
   <p class="text-muted text-sm mb-2">Required for sending invoices and auto-invoicing notifications.</p>
@@ -70,11 +89,11 @@
     <button type="submit" class="btn btn-secondary btn-sm">Send test email</button>
   </form>
 </div>
- 
+
 <div class="card" style="max-width:520px;">
   <div class="card-title">Account</div>
- 
+
   <a href="{{ url_for('auth.change_password') }}" class="btn btn-secondary btn-sm">Change password</a>
 </div>
- 
+
 {% endblock %}
