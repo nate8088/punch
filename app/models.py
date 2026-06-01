@@ -183,7 +183,11 @@ class Invoice(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     client = db.relationship("Client", back_populates="invoices")
-    time_entries = db.relationship("TimeEntry", back_populates="invoice")
+    time_entries = db.relationship(
+        "TimeEntry",
+        back_populates="invoice",
+        order_by="TimeEntry.started_at",
+    )
 
     def __repr__(self):
         return f"<Invoice {self.invoice_number} {self.status}>"
