@@ -56,6 +56,12 @@ TIMER_ALERT_FIELDS = [
     ("long_running_timer_hours", "Alert me if a timer runs longer than (hours)", "number", "8"),
 ]
 
+# Keys for the global invoice email template card in settings.html.
+# Per-client overrides on the Client model take priority over these.
+# Supported template variables: {invoice_number}, {business_name}, {client_name},
+# {contact_name}, {amount}, {due_date}, {period}
+EMAIL_TEMPLATE_KEYS = ["invoice_email_subject", "invoice_email_body"]
+
 
 def get_business():
     return {

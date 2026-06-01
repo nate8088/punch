@@ -28,6 +28,8 @@ def new():
             phone=request.form.get("phone", "").strip(),
             billing_mode=request.form.get("billing_mode", "hourly"),
             notes=request.form.get("notes", "").strip(),
+            invoice_email_subject=request.form.get("invoice_email_subject", "").strip() or None,
+            invoice_email_body=request.form.get("invoice_email_body", "").strip() or None,
         )
 
         if client.billing_mode == "retainer":
@@ -73,6 +75,8 @@ def edit(client_id):
         client.notes = request.form.get("notes", "").strip()
         client.is_active = request.form.get("is_active") == "on"
         client.auto_invoice = request.form.get("auto_invoice") == "on"
+        client.invoice_email_subject = request.form.get("invoice_email_subject", "").strip() or None
+        client.invoice_email_body = request.form.get("invoice_email_body", "").strip() or None
 
         if client.billing_mode == "retainer":
             client.retainer_amount = request.form.get("retainer_amount") or None

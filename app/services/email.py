@@ -65,35 +65,72 @@ def send_email(to_addresses, subject, body, cc_addresses=None, pdf_bytes=None, p
 
 def build_invoice_email(invoice):
     """
-    Build the default subject and body for an invoice email.
+    Build the subject and body for an invoice email.
+
+    Priority order for subject and body:
+      1. Per-client override (client.invoice_email_subject / invoice_email_body)
+      2. Global default from Settings (invoice_email_subject / invoice_email_body)
+      3. Hardcoded fallback (original behavior — unchanged)
+
+    Template variables available in custom subject/body strings:
+      {invoice_number}, {business_name}, {client_name}, {contact_name},
+      {amount}, {due_date}, {period}
+
     Returns a dict: {"subject": str, "body": str}
     Used by both auto-invoicing and the manual send flow so copy stays consistent.
     """
     business_name = Setting.get("business_name") or "Punch"
     client = invoice.client
 
-    if invoice.period_start:
-        period_label = invoice.period_start.strftime("%B %Y")
-        period_line = f"for {period_label}"
-    else:
-        period_line = ""
-
-    subject = f"Invoice {invoice.invoice_number} from {business_name}"
-
+    period_label = invoice.period_start.strftime("%B %Y") if invoice.period_start else ""
     greeting_name = client.contact_name or client.name
-    due_line = (
-        f"Due date: {invoice.due_date.strftime('%B %d, %Y')}\n"
-        if invoice.due_date else ""
+    due_str = invoice.due_date.strftime("%B %d, %Y") if invoice.due_date else ""
+
+    # Variables available for substitution in custom templates
+    template_vars = {
+        "invoice_number": invoice.invoice_number,
+        "business_name":  business_name,
+        "client_name":    client.name,
+        "contact_name":   greeting_name,
+        "amount":         invoice.total,
+        "due_date":       due_str,
+        "period":         period_label,
+    }
+
+    # ── Subject ──────────────────────────────────────────────────────────────
+    subject_tmpl = (
+        (client.invoice_email_subject or "").strip()
+        or Setting.get("invoice_email_subject", "").strip()
+        or "Invoice {invoice_number} from {business_name}"
+    )
+    try:
+        subject = subject_tmpl.format_map(template_vars)
+    except (KeyError, ValueError):
+        subject = subject_tmpl
+
+    # ── Body ─────────────────────────────────────────────────────────────────
+    custom_body_tmpl = (
+        (client.invoice_email_body or "").strip()
+        or Setting.get("invoice_email_body", "").strip()
     )
 
-    body = (
-        f"Hi {greeting_name},\n\n"
-        f"Please find attached invoice {invoice.invoice_number}"
-        f"{(' ' + period_line) if period_line else ''}.\n\n"
-        f"Amount due: ${invoice.total}\n"
-        f"{due_line}"
-        f"\nThank you for your business.\n\n"
-        f"{business_name}"
-    )
+    if custom_body_tmpl:
+        try:
+            body = custom_body_tmpl.format_map(template_vars)
+        except (KeyError, ValueError):
+            body = custom_body_tmpl
+    else:
+        # Hardcoded fallback — original behavior preserved exactly
+        period_line = f"for {period_label}" if period_label else ""
+        due_line = f"Due date: {due_str}\n" if due_str else ""
+        body = (
+            f"Hi {greeting_name},\n\n"
+            f"Please find attached invoice {invoice.invoice_number}"
+            f"{(' ' + period_line) if period_line else ''}.\n\n"
+            f"Amount due: ${invoice.total}\n"
+            f"{due_line}"
+            f"\nThank you for your business.\n\n"
+            f"{business_name}"
+        )
 
     return {"subject": subject, "body": body}

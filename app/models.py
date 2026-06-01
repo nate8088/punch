@@ -51,6 +51,14 @@ class Client(db.Model):
     notes = db.Column(db.Text)
     is_active = db.Column(db.Boolean, default=True)
     auto_invoice = db.Column(db.Boolean, default=False)
+
+    # Per-client invoice email overrides. If set, these take priority over the
+    # global default in Settings. Leave blank to fall back to the global default.
+    # Supports template variables: {invoice_number}, {business_name}, {client_name},
+    # {contact_name}, {amount}, {due_date}, {period}
+    invoice_email_subject = db.Column(db.Text)
+    invoice_email_body = db.Column(db.Text)
+
     created_at = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     time_entries = db.relationship("TimeEntry", back_populates="client", lazy="dynamic")

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required
 from app import db
-from app.settings import Setting, SETTING_FIELDS, SMTP_FIELDS, TIMER_ALERT_FIELDS
+from app.settings import Setting, SETTING_FIELDS, SMTP_FIELDS, TIMER_ALERT_FIELDS, EMAIL_TEMPLATE_KEYS
 from app.services.audit import log_event
 
 settings_bp = Blueprint("settings", __name__, url_prefix="/settings")
@@ -10,6 +10,7 @@ ALL_KEYS = (
     [key for key, *_ in SETTING_FIELDS] +
     [key for key, *_ in SMTP_FIELDS] +
     [key for key, *_ in TIMER_ALERT_FIELDS] +
+    EMAIL_TEMPLATE_KEYS +
     ["auto_invoice_mode"]
 )
 

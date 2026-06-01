@@ -109,6 +109,26 @@
     </div>
     {% endif %}
 
+    <hr class="divider">
+
+    <div class="form-group">
+      <label>Invoice email subject</label>
+      <input type="text" name="invoice_email_subject"
+             value="{{ (client.invoice_email_subject or '') if client else '' }}"
+             placeholder="Invoice {invoice_number} from {business_name}">
+      <div class="form-hint">Overrides the global default for this client. Leave blank to use global default.</div>
+    </div>
+
+    <div class="form-group">
+      <label>Invoice email body</label>
+      <textarea name="invoice_email_body" rows="8"
+                placeholder="Hi {contact_name},&#10;&#10;Please find attached invoice {invoice_number} for {period}.&#10;&#10;Amount due: ${amount}&#10;Due date: {due_date}&#10;&#10;Thank you for your business.&#10;&#10;{business_name}">{{ (client.invoice_email_body or '') if client else '' }}</textarea>
+      <div class="form-hint">
+        Leave blank to use the global default. Available variables:
+        {invoice_number}, {business_name}, {client_name}, {contact_name}, {amount}, {due_date}, {period}
+      </div>
+    </div>
+
     <div class="btn-group">
       <button type="submit" class="btn btn-primary">{% if client %}Save changes{% else %}Create client{% endif %}</button>
       <a href="{{ url_for('clients.index') }}" class="btn btn-secondary">Cancel</a>
