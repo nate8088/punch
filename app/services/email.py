@@ -7,6 +7,7 @@ import ssl
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+from email.utils import formataddr
 from app.settings import Setting
 
 
@@ -33,6 +34,7 @@ def send_email(to_addresses, subject, body, cc_addresses=None, pdf_bytes=None, p
     pdf_bytes: raw PDF bytes to attach, or None
     """
     s = get_smtp_settings()
+    business_name = Setting.get("business_name") or ""
 
     if isinstance(to_addresses, str):
         to_addresses = [to_addresses]
@@ -40,7 +42,7 @@ def send_email(to_addresses, subject, body, cc_addresses=None, pdf_bytes=None, p
         cc_addresses = [cc_addresses]
 
     msg = MIMEMultipart()
-    msg["From"] = s["from"]
+    msg["From"] = formataddr((business_name, s["from"])) if business_name else s["from"]
     msg["To"] = ", ".join(to_addresses)
     msg["Subject"] = subject
     if cc_addresses:
