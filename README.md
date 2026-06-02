@@ -12,17 +12,17 @@ Simple time tracking and invoicing for freelancers. Self-hosted, no subscription
 
 ## Features
 
-- **Punch in/out** — mobile-friendly timer screen, works from your phone browser
-- **Manual time entry** — add entries by hand with date, time, and notes
-- **Retainer billing** — fixed monthly rate with a configurable hour cap; overage tracked automatically
-- **Hourly billing** — standard rate × hours
-- **Monthly invoices** — auto-generated from your logged hours with one click
-- **Auto-invoicing** — automatically generate and optionally send invoices on the 1st of each month
-- **Project/manual invoices** — custom line items for one-off work
-- **PDF download** — clean, professional invoice PDF for emailing
-- **Reports** — per-client summary with hours and revenue over any date range; unbilled hours view grouped by client
-- **Harvest import** — bring in your history from Harvest via CSV export
-- **Multi-device** — runs on your own hardware, accessible from phone + desktop via Tailscale (or any network)
+- **Punch in/out** - mobile-friendly timer screen, works from your phone browser
+- **Manual time entry** - add entries by hand with date, time, and notes
+- **Retainer billing** - fixed monthly rate with a configurable hour cap; overage tracked automatically
+- **Hourly billing** - standard rate × hours
+- **Monthly invoices** - auto-generated from your logged hours with one click
+- **Auto-invoicing** - automatically generate and optionally send invoices on the 1st of each month
+- **Project/manual invoices** - custom line items for one-off work
+- **PDF download** - clean, professional invoice PDF for emailing
+- **Reports** - per-client summary with hours and revenue over any date range; unbilled hours view grouped by client
+- **Harvest import** - bring in your history from Harvest via CSV export
+- **Multi-device** - runs on your own hardware, accessible from phone + desktop via Tailscale (or any network)
 
 ---
 
@@ -125,7 +125,7 @@ Then run the import:
 docker compose exec app python scripts/import_harvest.py /path/to/harvest_export.csv
 ```
 
-The script will interactively match Harvest client names to your Punch clients. It's safe to run multiple times — duplicate entries are detected and skipped.
+The script will interactively match Harvest client names to your Punch clients. It's safe to run multiple times. Duplicate entries are detected and skipped.
 
 **Note:** Imported entries will not be linked to any invoices, even if those entries were previously billed in Harvest. To clean up the unbilled report after an import, create a placeholder invoice for each client (invoice type: project, status: paid) and link the historical entries to it via the database. See the Unbilled Hours section below for context.
 
@@ -138,9 +138,9 @@ The script will interactively match Harvest client names to your Punch clients. 
 1. Go to **Clients → New Client**
 2. Set **Billing mode: Retainer**
 3. Enter:
-   - **Monthly retainer amount** — the fixed fee you invoice each month
-   - **Included hours** — your soft cap (e.g. 12). Hours above this show as overage — you decide whether to bill them.
-   - **Overage rate** — hourly rate if you do invoice overages
+   - **Monthly retainer amount** - the fixed fee you invoice each month
+   - **Included hours** - your soft cap (e.g. 12). Hours above this show as overage — you decide whether to bill them.
+   - **Overage rate** - hourly rate if you do invoice overages
 
 ### Logging time
 
@@ -155,7 +155,7 @@ The script will interactively match Harvest client names to your Punch clients. 
 - Set client, date/time, and duration
 
 **Editing an entry:**
-- Duration can be overridden manually — if you enter a value in the Duration field, it takes priority over the calculated start/end difference.
+- Duration can be overridden manually - if you enter a value in the Duration field, it takes priority over the calculated start/end difference.
 - Duration is always rounded up to the nearest 15-minute block.
 
 ### Generating a monthly invoice
@@ -172,8 +172,8 @@ Punch can automatically generate invoices on the 1st of each month:
 
 1. Go to **Settings → Email / SMTP** and configure your outgoing mail server
 2. Go to **Settings → Auto-invoicing** and choose a mode:
-   - **Draft mode** — creates a draft invoice and emails you a notification to review it
-   - **Send mode** — sends the PDF directly to the client and CCs you
+   - **Draft mode** - creates a draft invoice and emails you a notification to review it
+   - **Send mode** - sends the PDF directly to the client and CCs you
 3. On each client's edit page, enable **Auto-generate monthly invoice**
 
 If Punch is down on the 1st, it will catch up and generate any missed invoices on next startup.
@@ -182,9 +182,9 @@ If Punch is down on the 1st, it will catch up and generate any missed invoices o
 
 Go to **Reports** in the nav.
 
-**Summary** — select a date range (defaults to current year) and see each client's total hours, billed hours, and revenue. Revenue is calculated from billed entries only — hourly clients by rate × hours, retainer clients by months billed plus any overage.
+**Summary** - select a date range (defaults to current year) and see each client's total hours, billed hours, and revenue. Revenue is calculated from billed entries only - hourly clients by rate × hours, retainer clients by months billed plus any overage.
 
-**Unbilled** — shows all completed time entries with no invoice attached, grouped by client. Click a client row to expand and see individual entries. Each entry has an Edit link for quick corrections.
+**Unbilled** - shows all completed time entries with no invoice attached, grouped by client. Click a client row to expand and see individual entries. Each entry has an Edit link for quick corrections.
 
 ### Unbilled hours and imported history
 
@@ -245,4 +245,4 @@ MIT. Use it, fork it, share it. Attribution appreciated but not required.
 
 ## Origin
 
-Built because Harvest got sold to private equity and nerfed the free tier. Sometimes that's all the motivation you need.
+Built because the timekeeping software I was using for years got killed by PE. Sometimes that's all the motivation you need.
