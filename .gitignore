@@ -19,5 +19,5 @@ app/scripts/
 # Editor/IDE
 .vscode/
 .idea/
-*.swpCLAUDE.md
+*.swp
 CLAUDE.md
