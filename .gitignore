@@ -19,4 +19,5 @@ app/scripts/
 # Editor/IDE
 .vscode/
 .idea/
-*.swp
+*.swpCLAUDE.md
+CLAUDE.md
