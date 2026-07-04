@@ -8,6 +8,14 @@
     <div class="page-subtitle">{{ period_subtitle }}</div>
   </div>
   <div class="btn-group">
+    <a href="{{ url_for('dashboard.index', range=range_type, anchor=prev_anchor) }}"
+       class="btn btn-secondary btn-sm" title="Previous {{ range_type }}">&lsaquo;</a>
+    <a href="{{ url_for('dashboard.index', range=range_type, anchor=next_anchor) }}"
+       class="btn btn-secondary btn-sm" title="Next {{ range_type }}">&rsaquo;</a>
+    {% if not is_current %}
+    <a href="{{ url_for('dashboard.index', range=range_type) }}"
+       class="btn btn-secondary btn-sm">Today</a>
+    {% endif %}
     <a href="{{ url_for('dashboard.index', range='week') }}"
        class="btn btn-sm {% if range_type == 'week' %}btn-primary{% else %}btn-secondary{% endif %}">Week</a>
     <a href="{{ url_for('dashboard.index') }}"
@@ -33,7 +41,7 @@
 <!-- Hours by client for the selected period -->
 {% if summaries %}
 <div class="card">
-  <div class="card-title">Hours this {{ 'week' if range_type == 'week' else 'month' }}</div>
+  <div class="card-title">Hours by client</div>
   <div class="table-wrap">
     <table>
       <thead>

@@ -19,16 +19,30 @@ def index():
     if range_type not in ("month", "week"):
         range_type = "month"
 
+    # Anchor date: any date inside the period being viewed.
+    # Defaults to today; garbage input also falls back to today.
+    anchor_raw = request.args.get("anchor", "")
+    try:
+        anchor = date.fromisoformat(anchor_raw)
+    except ValueError:
+        anchor = today
+
     if range_type == "week":
-        period_start = today - timedelta(days=today.weekday())  # Monday
-        period_end = period_start + timedelta(days=6)            # Sunday
-        period_label = f"Week of {period_start.strftime('%b %d')}"
+        period_start = anchor - timedelta(days=anchor.weekday())  # Monday
+        period_end = period_start + timedelta(days=6)              # Sunday
+        period_label = f"Week of {period_start.strftime('%b %d, %Y')}"
         period_subtitle = "Weekly overview"
+        prev_anchor = period_start - timedelta(days=7)
+        next_anchor = period_start + timedelta(days=7)
+        is_current = period_start <= today <= period_end
     else:
-        period_start = today.replace(day=1)
-        period_end = today.replace(day=calendar.monthrange(today.year, today.month)[1])
-        period_label = today.strftime("%B %Y")
+        period_start = anchor.replace(day=1)
+        period_end = anchor.replace(day=calendar.monthrange(anchor.year, anchor.month)[1])
+        period_label = anchor.strftime("%B %Y")
         period_subtitle = "Monthly overview"
+        prev_anchor = (period_start - timedelta(days=1)).replace(day=1)
+        next_anchor = period_end + timedelta(days=1)
+        is_current = period_start <= today <= period_end
 
     # Running timer (if any)
     running_entry = TimeEntry.query.filter_by(ended_at=None).first()
@@ -77,4 +91,7 @@ def index():
         range_type=range_type,
         period_label=period_label,
         period_subtitle=period_subtitle,
+        prev_anchor=prev_anchor.isoformat(),
+        next_anchor=next_anchor.isoformat(),
+        is_current=is_current,
     )
