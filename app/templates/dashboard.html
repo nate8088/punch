@@ -4,10 +4,14 @@
 
 <div class="page-header">
   <div>
-    <div class="page-title">{{ month_name }}</div>
-    <div class="page-subtitle">Monthly overview</div>
+    <div class="page-title">{{ period_label }}</div>
+    <div class="page-subtitle">{{ period_subtitle }}</div>
   </div>
   <div class="btn-group">
+    <a href="{{ url_for('dashboard.index', range='week') }}"
+       class="btn btn-sm {% if range_type == 'week' %}btn-primary{% else %}btn-secondary{% endif %}">Week</a>
+    <a href="{{ url_for('dashboard.index') }}"
+       class="btn btn-sm {% if range_type == 'month' %}btn-primary{% else %}btn-secondary{% endif %}">Month</a>
     <a href="{{ url_for('time.punch') }}" class="btn btn-primary">Clock</a>
     <a href="{{ url_for('time.new') }}" class="btn btn-secondary">+ Entry</a>
   </div>
@@ -26,10 +30,10 @@
 </div>
 {% endif %}
 
-<!-- This month by client -->
-{% if month_summaries %}
+<!-- Hours by client for the selected period -->
+{% if summaries %}
 <div class="card">
-  <div class="card-title">Hours this month</div>
+  <div class="card-title">Hours this {{ 'week' if range_type == 'week' else 'month' }}</div>
   <div class="table-wrap">
     <table>
       <thead>
@@ -37,21 +41,23 @@
           <th>Client</th>
           <th>Mode</th>
           <th class="text-right">Hours</th>
-          <th class="text-right">Overage</th>
+          {% if range_type == 'month' %}<th class="text-right">Overage</th>{% endif %}
           <th></th>
         </tr>
       </thead>
       <tbody>
-        {% for s in month_summaries %}
+        {% for s in summaries %}
         <tr>
           <td><a href="{{ url_for('clients.detail', client_id=s.client.id) }}" style="color:var(--text);text-decoration:none;">{{ s.client.name }}</a></td>
           <td>
             <span class="badge badge-{{ s.client.billing_mode }}">{{ s.client.billing_mode }}</span>
           </td>
           <td class="text-right mono">{{ s.total_hours }}h</td>
+          {% if range_type == 'month' %}
           <td class="text-right mono {% if s.overage_hours > 0 %}text-warning{% endif %}">
             {% if s.overage_hours > 0 %}+{{ s.overage_hours }}h{% else %}—{% endif %}
           </td>
+          {% endif %}
           <td class="text-right">
             <a href="{{ url_for('invoices.new_monthly', client_id=s.client.id) }}" class="btn btn-ghost btn-sm">Invoice</a>
           </td>
@@ -65,7 +71,7 @@
 <div class="card">
   <div class="empty">
     <div class="empty-icon">⏱</div>
-    <p>No time logged this month.<br><a href="{{ url_for('time.punch') }}" style="color:var(--accent);">Start the clock.</a></p>
+    <p>No time logged this {{ 'week' if range_type == 'week' else 'month' }}.<br><a href="{{ url_for('time.punch') }}" style="color:var(--accent);">Start the clock.</a></p>
   </div>
 </div>
 {% endif %}
