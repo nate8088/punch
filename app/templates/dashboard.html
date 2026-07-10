@@ -37,7 +37,7 @@
   <div style="display:flex; justify-content:space-between; align-items:center;">
     <div>
       <strong>{{ running_entry.client.name }}</strong>
-      <div class="text-muted text-sm">Started {{ running_entry.started_at.strftime('%I:%M %p') }}</div>
+      <div class="text-muted text-sm">Started <span data-utc-source="{{ running_entry.started_at.strftime('%Y-%m-%dT%H:%M:%SZ') }}" data-display="local" data-format="time12">{{ running_entry.started_at.strftime('%I:%M %p') }} UTC</span></div>
     </div>
     <a href="{{ url_for('time.punch') }}" class="btn btn-danger btn-sm">Punch out</a>
   </div>

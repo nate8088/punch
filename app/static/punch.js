@@ -53,6 +53,38 @@ function initTimeEntryForm() {
   });
 }
 
+// ── Local-time display conversion (read-only text, not form inputs) ────────
+
+// Convert a local Date object to a display string.
+// format: "datetime" (default) -> "YYYY-MM-DD HH:MM" (24-hour)
+//         "time12"              -> "HH:MM AM/PM" (12-hour, zero-padded)
+function formatLocalDisplay(d, format) {
+  const pad = n => String(n).padStart(2, "0");
+  if (format === "time12") {
+    let hours = d.getHours() % 12;
+    if (hours === 0) hours = 12;
+    const ampm = d.getHours() >= 12 ? "PM" : "AM";
+    return `${pad(hours)}:${pad(d.getMinutes())} ${ampm}`;
+  }
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// Any element with [data-utc-source] and [data-display="local"] gets its
+// text content replaced with the local-time equivalent on load. For
+// read-only timestamp display only — see initTimeEntryForm() above for
+// form inputs. data-format selects the output shape (see
+// formatLocalDisplay). If the source is missing or unparseable, the
+// server-rendered fallback text is left in place untouched.
+function initLocalDisplays() {
+  document.querySelectorAll('[data-utc-source][data-display="local"]').forEach(el => {
+    const utcISO = el.dataset.utcSource;
+    if (!utcISO) return;
+    const d = new Date(utcISO);
+    if (isNaN(d.getTime())) return;
+    el.textContent = formatLocalDisplay(d, el.dataset.format);
+  });
+}
+
 // ── Live timer ──────────────────────────────────────────────────────────────
 
 let timerInterval = null;
@@ -199,4 +231,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initLineItems();
   initConfirmForms();
   initTimeEntryForm();
+  initLocalDisplays();
 });
