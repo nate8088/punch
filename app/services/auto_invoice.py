@@ -213,16 +213,16 @@ def run_auto_invoicing(app):
             months_to_process.append((cursor.year, cursor.month))
 
         if not months_to_process:
+            # Cursor already reflects everything through last month — leave it alone.
             log.info("Auto-invoicing: nothing to process.")
-            Setting.set("auto_invoice_last_run", today.isoformat())
-            db.session.commit()
             return
 
         clients = Client.query.filter_by(is_active=True, auto_invoice=True).all()
         if not clients:
-            log.info("Auto-invoicing: no clients with auto_invoice enabled.")
-            Setting.set("auto_invoice_last_run", today.isoformat())
-            db.session.commit()
+            # Nobody enabled right now. Don't advance the cursor — if a client
+            # gets auto_invoice turned back on later, this range should still
+            # get billed then instead of being silently lost.
+            log.info("Auto-invoicing: no clients with auto_invoice enabled. Cursor left in place.")
             return
 
         for year, month in months_to_process:
@@ -231,7 +231,16 @@ def run_auto_invoicing(app):
                 if invoice:
                     maybe_send_invoice(invoice, client, app)
 
-        Setting.set("auto_invoice_last_run", today.isoformat())
+        # Record the last month we actually billed through — not today's date.
+        # Stamping the run date here overshoots the cursor by a month, since a
+        # run on the 1st bills the *previous* month; the following run would
+        # then treat the current in-progress month as already covered and
+        # silently skip billing entirely.
+        last_billed_year, last_billed_month = months_to_process[-1]
+        Setting.set(
+            "auto_invoice_last_run",
+            date(last_billed_year, last_billed_month, 1).isoformat(),
+        )
         log_event(
             "auto_invoice.run_completed",
             f"Auto-invoice scheduler ran. Processed {len(months_to_process)} month(s) for {len(clients)} client(s).",
